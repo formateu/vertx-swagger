@@ -9,8 +9,8 @@ import io.swagger.server.api.util.ResourceResponse;
 import java.util.UUID;
 import io.swagger.server.api.util.VerticleHelper;
 
-import rx.Completable;
-import rx.Single;
+import io.reactivex.Single;
+import io.reactivex.Completable;
 import io.vertx.rxjava.ext.auth.User;
 
 import java.util.List;

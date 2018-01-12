@@ -32,8 +32,8 @@
 	</developers>
 
 	<properties>
-		<swagger-codegen.version>2.2.2</swagger-codegen.version>
-		<java.version>1.6</java.version>
+		<swagger-codegen.version>2.3.1</swagger-codegen.version>
+		<java.version>1.8</java.version>
 	</properties>
 
 	<dependencies>

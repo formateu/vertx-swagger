@@ -10,7 +10,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
-import rx.functions.Action1;
+import io.reactivex.functions.Consumer;
 
 public class VerticleHelper {
 
@@ -24,13 +24,13 @@ public class VerticleHelper {
         this.logger = LoggerFactory.getLogger(clazz);
     }
 
-    public Action1<Throwable> getErrorAction(Message<JsonObject> message, String serviceName) {
+    public Consumer<Throwable> getErrorAction(Message<JsonObject> message, String serviceName) {
         return error -> {
             manageError(message, error, serviceName);
         };
     }
 
-    public <T> Action1<ResourceResponse<T>> getRxResultHandler(Message<JsonObject> message, boolean withJsonEncode, TypeReference<T> type) {
+    public <T> Consumer<ResourceResponse<T>> getRxResultHandler(Message<JsonObject> message, boolean withJsonEncode, TypeReference<T> type) {
         return result -> {
             DeliveryOptions deliveryOptions = new DeliveryOptions();
             deliveryOptions.setHeaders(result.getHeaders());

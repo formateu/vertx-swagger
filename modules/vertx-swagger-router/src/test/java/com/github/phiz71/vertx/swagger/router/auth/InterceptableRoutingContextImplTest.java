@@ -31,6 +31,7 @@ import org.junit.Test;
 import java.util.HashSet;
 
 import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLSession;
 import javax.security.cert.X509Certificate;
 
 public class InterceptableRoutingContextImplTest {
@@ -362,5 +363,11 @@ class TestHttpServerRequest implements HttpServerRequest {
         // TODO Auto-generated method stub
         return null;
     }
+
+	@Override
+	public SSLSession sslSession() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

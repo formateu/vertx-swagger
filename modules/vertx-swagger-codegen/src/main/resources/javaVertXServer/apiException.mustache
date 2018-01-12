@@ -1,15 +1,21 @@
 package {{package}};
 
-{{#imports}}import {{import}};
-{{/imports}}
+import com.github.phiz71.vertx.swagger.router.ApiException;
 
-public final class {{classname}}Exception extends MainApiException {
+public class {{classname}}Exception extends ApiException {
+
+	private static final long serialVersionUID = 1L;
+
     public {{classname}}Exception(int statusCode, String statusMessage) {
         super(statusCode, statusMessage);
     }
     
-    {{#operations}}{{#operation}}{{#responses}}{{^isDefault}}public static {{classname}}Exception {{classname}}_{{{operationId}}}_{{{code}}}_createException() {
-        return new {{classname}}Exception({{{code}}}, "{{{message}}}");
+    {{#operations}}{{#operation}}{{#responses}}{{^isDefault}}public static class {{{operationIdCamelCase}}}{{{code}}}Exception extends {{classname}}Exception {
+        private static final long serialVersionUID = 1L;
+        
+        public {{{operationIdCamelCase}}}{{{code}}}Exception() {
+        	super({{{code}}}, "{{{message}}}");
+        }
     }
     {{/isDefault}}{{/responses}}{{/operation}}{{/operations}}
 

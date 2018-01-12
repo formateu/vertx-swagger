@@ -3,19 +3,25 @@ package {{package}};
 {{#imports}}import {{import}};
 {{/imports}}
 
+import {{invokerPackage}}.util.ResourceResponse;
+
 {{#rxInterface}}
-import rx.Completable;
-import rx.Single;
+import static {{invokerPackage}}.util.ResourceResponseRxWrapper.emptyHeaderWrapper;
+
+import io.reactivex.Single;
+{{#hasAuthMethods}}
 import io.vertx.rxjava.ext.auth.User;
+{{/hasAuthMethods}}
 {{/rxInterface}}
 {{^rxInterface}}
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
+{{#hasAuthMethods}}
 import io.vertx.ext.auth.User;
+{{/hasAuthMethods}}
 {{/rxInterface}}
 
 import java.util.List;
-import java.util.Map;
 
 public interface {{classname}}  {
 {{#operations}}

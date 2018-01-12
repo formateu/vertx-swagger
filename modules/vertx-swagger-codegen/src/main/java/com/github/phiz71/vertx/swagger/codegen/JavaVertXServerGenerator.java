@@ -1,18 +1,29 @@
 package com.github.phiz71.vertx.swagger.codegen;
 
-import io.swagger.codegen.*;
-import io.swagger.codegen.languages.AbstractJavaCodegen;
-import io.swagger.models.*;
-import io.swagger.models.properties.Property;
-import io.swagger.util.Json;
-
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import io.swagger.codegen.CliOption;
+import io.swagger.codegen.CodegenModel;
+import io.swagger.codegen.CodegenOperation;
+import io.swagger.codegen.CodegenParameter;
+import io.swagger.codegen.CodegenProperty;
+import io.swagger.codegen.CodegenType;
+import io.swagger.codegen.SupportingFile;
+import io.swagger.codegen.languages.AbstractJavaCodegen;
+import io.swagger.models.HttpMethod;
+import io.swagger.models.Model;
+import io.swagger.models.Operation;
+import io.swagger.models.Path;
+import io.swagger.models.Swagger;
+import io.swagger.models.properties.Property;
+import io.swagger.util.Json;
 
 public class JavaVertXServerGenerator extends AbstractJavaCodegen {
 
@@ -31,6 +42,8 @@ public class JavaVertXServerGenerator extends AbstractJavaCodegen {
     private static final String VENDOR_EXTENSIONS_JSON_GETTER = "X-JSONGetter";
     private static final String VENDOR_EXTENSIONS_NEED_CAST = "X-needCast";
     private static final String VENDOR_EXTENSIONS_UPPER_SNAKE_CASE = "X-UPPER_SNAKE_CASE";
+    
+    private static final String VENDOR_EXTENSIONS_HAS_JSON_BODY = "X-hasJSON";
 
     //Specific Java types & dataTypes
     private static final String DATATYPE_ARRAY = "array";
@@ -45,6 +58,8 @@ public class JavaVertXServerGenerator extends AbstractJavaCodegen {
     private String resourceFolder = "src/main/resources";
     private String apiVersion = "1.0.0-SNAPSHOT";
     private boolean isJsonObjectGeneration = false;
+    
+    private Map<String, List<CodegenOperation>> operationMap = new HashMap<>();
 
     public JavaVertXServerGenerator() {
         super();
@@ -162,11 +177,11 @@ public class JavaVertXServerGenerator extends AbstractJavaCodegen {
         importMapping.put(TYPE_JSON_INCLUDE, "com.fasterxml.jackson.annotation.JsonInclude");
         importMapping.put(TYPE_JSON_PROPERTY, "com.fasterxml.jackson.annotation.JsonProperty");
         importMapping.put(TYPE_JSON_VALUE, "com.fasterxml.jackson.annotation.JsonValue");
-        importMapping.put("MainApiException", invokerPackage + ".MainApiException");
-        importMapping.put("MainApiHeader", invokerPackage + ".MainApiHeader");
         importMapping.put("ResourceResponse", invokerPackage + ".util.ResourceResponse");
         importMapping.put("VerticleHelper", invokerPackage + ".util.VerticleHelper");
 
+        
+        
         supportingFiles.clear();
         supportingFiles.add(new SupportingFile("swagger.mustache", resourceFolder, "swagger.json"));
 
@@ -221,15 +236,14 @@ public class JavaVertXServerGenerator extends AbstractJavaCodegen {
             ".java"); // the extension for each file to write
 
 
-        supportingFiles.add(new SupportingFile("MainApiException.mustache", sourceFolder + File.separator + invokerPackage.replace(".", File.separator), "MainApiException.java"));
-        supportingFiles.add(new SupportingFile("MainApiHeader.mustache", sourceFolder + File.separator + invokerPackage.replace(".", File.separator), "MainApiHeader.java"));
         supportingFiles.add(new SupportingFile("ResourceResponse.mustache", sourceFolder + File.separator + invokerPackage.replace(".", File.separator) + File.separator + "util", "ResourceResponse.java"));
-
-        writeOptional(outputFolder, new SupportingFile("SwaggerManager.mustache", sourceFolder + File.separator + invokerPackage.replace(".", File.separator) + File.separator + "util", "SwaggerManager.java"));
+        
+        Object rxInterfaceGenerationOption = additionalProperties.get(RX_INTERFACE_OPTION);
+        if (rxInterfaceGenerationOption != null && Boolean.parseBoolean(rxInterfaceGenerationOption.toString())) {
+            supportingFiles.add(new SupportingFile("ResourceResponseRxWrapper.mustache", sourceFolder + File.separator + invokerPackage.replace(".", File.separator) + File.separator + "util", "ResourceResponseRxWrapper.java"));
+        }
+        
         writeOptional(outputFolder, new SupportingFile("vertx-default-jul-logging.mustache", resourceFolder, "vertx-default-jul-logging.properties"));
-        writeOptional(outputFolder, new SupportingFile("pom.mustache", "", "pom.xml"));
-        writeOptional(outputFolder, new SupportingFile("README.mustache", "", "README.md"));
-        writeOptional(outputFolder, new SupportingFile("executer-batch.mustache", "", "run-with-config.sh"));
         writeOptional(outputFolder, new SupportingFile("vertx-application-config.mustache", "", "config.json"));
         writeOptional(outputFolder, new SupportingFile("swagger-codegen-ignore.mustache", "", ".swagger-codegen-ignore"));
     }
@@ -343,7 +357,7 @@ public class JavaVertXServerGenerator extends AbstractJavaCodegen {
             if (operation.getHasPathParams()) {
                 operation.path = camelizePath(operation.path);
             }
-
+            
         }
         return newObjs;
     }
@@ -351,16 +365,28 @@ public class JavaVertXServerGenerator extends AbstractJavaCodegen {
     @Override
     public CodegenOperation fromOperation(String path, String httpMethod, Operation operation, Map<String, Model> definitions, Swagger swagger) {
         CodegenOperation codegenOperation = super.fromOperation(path, httpMethod, operation, definitions, swagger);
-        codegenOperation.imports.add("MainApiException");
-        codegenOperation.imports.add("MainApiHeader");
-        codegenOperation.imports.add("ResourceResponse");
-        codegenOperation.imports.add("VerticleHelper");
-
+        for (String tag : operation.getTags()) {
+        	super.addOperationToGroup(tag, codegenOperation.path, operation, codegenOperation, operationMap);
+        }
+        
         if (this.isJsonObjectGeneration) {
             codegenOperation.imports.add(TYPE_JSON_OBJECT);
             codegenOperation.imports.add(TYPE_JSON_ARRAY);
         }
 
+        if (codegenOperation.hasParams) {
+        	boolean hasJsonBody = false;
+        	for (CodegenParameter param : codegenOperation.allParams) {
+        		if (param.isListContainer || !param.isPrimitiveType) {
+        			hasJsonBody = true;
+        			break;
+        		}
+        	}
+        	
+        	codegenOperation.vendorExtensions.put(VENDOR_EXTENSIONS_HAS_JSON_BODY, hasJsonBody);
+        }
+        
+        /*
         for (Map.Entry<String, Response> entry : operation.getResponses().entrySet()) {
             Response response = entry.getValue();
             CodegenResponse r = fromResponse(entry.getKey(), response);
@@ -372,7 +398,8 @@ public class JavaVertXServerGenerator extends AbstractJavaCodegen {
                     codegenOperation.imports.add(header.complexType);
                 }
             }
-        }
+            
+        }*/
 
         return codegenOperation;
     }

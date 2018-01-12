@@ -5,8 +5,10 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.Json;
+{{#hasAuthMethods}}
 import io.vertx.ext.auth.User;
 import com.github.phiz71.vertx.swagger.router.SwaggerRouter;
+{{/hasAuthMethods}}
 
 {{#imports}}import {{import}};
 {{/imports}}

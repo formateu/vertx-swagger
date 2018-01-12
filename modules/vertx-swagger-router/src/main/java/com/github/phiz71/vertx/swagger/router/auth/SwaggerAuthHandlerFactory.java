@@ -4,9 +4,13 @@ import com.github.phiz71.vertx.swagger.router.SwaggerRouter;
 import com.github.phiz71.vertx.swagger.router.auth.ApiKeyAuthHandler.Location;
 import io.swagger.models.auth.ApiKeyAuthDefinition;
 import io.swagger.models.auth.SecuritySchemeDefinition;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.auth.AuthProvider;
+import io.vertx.ext.auth.User;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.AuthHandler;
 import io.vertx.ext.web.handler.BasicAuthHandler;
@@ -119,9 +123,20 @@ public class SwaggerAuthHandlerFactory {
                 }
             }
 
+            @Override
             public void handle(RoutingContext context) {
                 handle(new InterceptableRoutingContext(context), 0, 0);
             }
+
+			@Override
+			public void parseCredentials(RoutingContext context, Handler<AsyncResult<JsonObject>> handler) {
+				
+			}
+
+			@Override
+			public void authorize(User user, Handler<AsyncResult<Void>> handler) {
+				
+			}
         };
     }
 }

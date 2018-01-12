@@ -1,9 +1,9 @@
 package {{package}};
 
-{{#imports}}import {{import}};
-{{/imports}}
+import com.github.phiz71.vertx.swagger.router.ApiHeader;
 
-public final class {{classname}}Header extends MainApiHeader {
+
+public final class {{classname}}Header extends ApiHeader {
     private {{classname}}Header(String name, String value) {
         super(name, value);
     }
