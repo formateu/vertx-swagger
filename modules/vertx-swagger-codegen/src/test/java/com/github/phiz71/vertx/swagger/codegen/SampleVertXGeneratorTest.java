@@ -156,7 +156,7 @@ public class SampleVertXGeneratorTest {
                 "temp/test-server/src/main/java/io/swagger/server/api/verticle/TestApiVerticle.java");
 
         Assert.assertTrue(FileUtils.readFileToString(testApiVerticleFile).contains(
-                "List<String> updateModel = Json.mapper.readValue(message.body().getJsonArray(\"updateModel\").encode(), new TypeReference<List<String>>(){});"));
+                "List<String> updateModel = Json.mapper.readValue(Optional.ofNullable(message.body().getJsonArray(\"updateModel\")).map(JsonArray::encode).orElse(\"null\"), new TypeReference<List<String>>(){});"));
 
         FileUtils.deleteDirectory(new File("temp"));
     }

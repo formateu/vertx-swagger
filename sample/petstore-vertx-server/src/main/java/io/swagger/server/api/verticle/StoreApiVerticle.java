@@ -5,6 +5,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.User;
 import com.github.phiz71.vertx.swagger.router.SwaggerRouter;
@@ -17,6 +18,7 @@ import io.swagger.server.api.util.VerticleHelper;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class StoreApiVerticle extends AbstractVerticle {
     private VerticleHelper verticleHelper = new VerticleHelper(this.getClass());
@@ -85,6 +87,6 @@ public class StoreApiVerticle extends AbstractVerticle {
     }
 
     protected StoreApi createServiceImplementation() {
-        return new StoreApiImpl();
+        return new StoreApiImpl(vertx);
     }
 }

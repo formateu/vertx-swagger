@@ -5,6 +5,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.User;
 import com.github.phiz71.vertx.swagger.router.SwaggerRouter;
@@ -20,6 +21,7 @@ import io.swagger.server.api.util.VerticleHelper;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class UserApiVerticle extends AbstractVerticle {
     private VerticleHelper verticleHelper = new VerticleHelper(this.getClass());
@@ -51,7 +53,7 @@ public class UserApiVerticle extends AbstractVerticle {
     //Handler for createUsersWithArrayInput
     final Handler<Message<JsonObject>> createUsersWithArrayInputHandler = message -> {
         try {
-            List<ModelUser> body = Json.mapper.readValue(message.body().getJsonArray("body").encode(), new TypeReference<List<ModelUser>>(){});
+            List<ModelUser> body = Json.mapper.readValue(Optional.ofNullable(message.body().getJsonArray("body")).map(JsonArray::encode).orElse("null"), new TypeReference<List<ModelUser>>(){});
             service.createUsersWithArrayInput(body, verticleHelper.getAsyncResultHandler(message, CREATEUSERSWITHARRAYINPUT_SERVICE_ID, false, new TypeReference<Void>(){}));
 
         } catch (Exception e) {
@@ -62,7 +64,7 @@ public class UserApiVerticle extends AbstractVerticle {
     //Handler for createUsersWithListInput
     final Handler<Message<JsonObject>> createUsersWithListInputHandler = message -> {
         try {
-            List<ModelUser> body = Json.mapper.readValue(message.body().getJsonArray("body").encode(), new TypeReference<List<ModelUser>>(){});
+            List<ModelUser> body = Json.mapper.readValue(Optional.ofNullable(message.body().getJsonArray("body")).map(JsonArray::encode).orElse("null"), new TypeReference<List<ModelUser>>(){});
             service.createUsersWithListInput(body, verticleHelper.getAsyncResultHandler(message, CREATEUSERSWITHLISTINPUT_SERVICE_ID, false, new TypeReference<Void>(){}));
 
         } catch (Exception e) {
@@ -154,6 +156,6 @@ public class UserApiVerticle extends AbstractVerticle {
     }
 
     protected UserApi createServiceImplementation() {
-        return new UserApiImpl();
+        return new UserApiImpl(vertx);
     }
 }

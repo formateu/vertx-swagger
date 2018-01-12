@@ -5,6 +5,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.User;
 import com.github.phiz71.vertx.swagger.router.SwaggerRouter;
@@ -14,6 +15,7 @@ import com.github.phiz71.vertx.swagger.router.SwaggerRouter;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class {{classname}}Verticle extends AbstractVerticle {
     private VerticleHelper verticleHelper = new VerticleHelper(this.getClass());
@@ -32,7 +34,7 @@ public class {{classname}}Verticle extends AbstractVerticle {
     {{#hasParams}}
         {{#allParams}}
             {{#isListContainer}}
-            {{{dataType}}} {{paramName}} = Json.mapper.readValue(message.body().getJsonArray("{{baseName}}").encode(), new TypeReference<{{{dataType}}}>(){});
+            {{{dataType}}} {{paramName}} = Json.mapper.readValue(Optional.ofNullable(message.body().getJsonArray("{{baseName}}")).map(JsonArray::encode).orElse("null"), new TypeReference<{{{dataType}}}>(){});
             {{/isListContainer}}
             {{^isListContainer}}
                 {{#isPrimitiveType}}
@@ -95,6 +97,6 @@ public class {{classname}}Verticle extends AbstractVerticle {
     }
 
     protected {{classname}} createServiceImplementation() {
-        return new {{classname}}Impl();
+        return new {{classname}}Impl(vertx);
     }
 }

@@ -5,6 +5,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.User;
 import com.github.phiz71.vertx.swagger.router.SwaggerRouter;
@@ -19,6 +20,7 @@ import io.swagger.server.api.util.VerticleHelper;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class PetApiVerticle extends AbstractVerticle {
     private VerticleHelper verticleHelper = new VerticleHelper(this.getClass());
@@ -68,7 +70,7 @@ public class PetApiVerticle extends AbstractVerticle {
     final Handler<Message<JsonObject>> findPetsByStatusHandler = message -> {
         try {
             User user = SwaggerRouter.extractAuthUserFromMessage(message);
-            List<String> status = Json.mapper.readValue(message.body().getJsonArray("status").encode(), new TypeReference<List<String>>(){});
+            List<String> status = Json.mapper.readValue(Optional.ofNullable(message.body().getJsonArray("status")).map(JsonArray::encode).orElse("null"), new TypeReference<List<String>>(){});
             service.findPetsByStatus(status, io.vertx.rxjava.ext.auth.User.newInstance(user)).subscribe(
                 verticleHelper.getRxResultHandler(message, true, new TypeReference<List<Pet>>(){}),
                 verticleHelper.getErrorAction(message, FINDPETSBYSTATUS_SERVICE_ID)
@@ -82,7 +84,7 @@ public class PetApiVerticle extends AbstractVerticle {
     final Handler<Message<JsonObject>> findPetsByTagsHandler = message -> {
         try {
             User user = SwaggerRouter.extractAuthUserFromMessage(message);
-            List<String> tags = Json.mapper.readValue(message.body().getJsonArray("tags").encode(), new TypeReference<List<String>>(){});
+            List<String> tags = Json.mapper.readValue(Optional.ofNullable(message.body().getJsonArray("tags")).map(JsonArray::encode).orElse("null"), new TypeReference<List<String>>(){});
             service.findPetsByTags(tags, io.vertx.rxjava.ext.auth.User.newInstance(user)).subscribe(
                 verticleHelper.getRxResultHandler(message, true, new TypeReference<List<Pet>>(){}),
                 verticleHelper.getErrorAction(message, FINDPETSBYTAGS_SERVICE_ID)
@@ -168,6 +170,6 @@ public class PetApiVerticle extends AbstractVerticle {
     }
 
     protected PetApi createServiceImplementation() {
-        return new PetApiImpl();
+        return new PetApiImpl(vertx);
     }
 }

@@ -2,14 +2,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.github.phiz71</groupId>
-  <artifactId>vertx-swagger-parent</artifactId>
-  <version>1.5.1-SNAPSHOT</version>
+  <groupId>com.github.vertx-swagger</groupId>
+  <artifactId>codegen</artifactId>
+  <version>1.5.1</version>
   <packaging>pom</packaging>
 
   <name>VertX Swagger Parent</name>
 
-  <url>https://github.com/phiz71/vertx-swagger</url>
+  <url>https://github.com/kdurnoga/vertx-swagger</url>
 
   <licenses>
     <license>
@@ -26,13 +26,6 @@
       <id>phiz71</id>
     </developer>
   </developers>
-
-  <scm>
-    <url>scm:git:git@github.com:phiz71/vertx-swagger.git</url>
-    <connection>scm:git:git@github.com:phiz71/vertx-swagger.git</connection>
-    <developerConnection>scm:git:git@github.com:phiz71/vertx-swagger.git</developerConnection>
-    <tag>HEAD</tag>
-  </scm>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -84,13 +77,6 @@
     <profile>
       <id>release</id>
 
-      <distributionManagement>
-        <snapshotRepository>
-          <id>ossrh</id>
-          <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-      </distributionManagement>
-
       <properties>
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
         <maven-javadoc-plugin.version>2.10.4</maven-javadoc-plugin.version>
@@ -123,33 +109,6 @@
                 <id>attach-javadocs</id>
                 <goals>
                   <goal>jar</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-
-          <plugin>
-            <groupId>org.sonatype.plugins</groupId>
-            <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>${nexus-staging-maven-plugin.version}</version>
-            <extensions>true</extensions>
-            <configuration>
-              <serverId>ossrh</serverId>
-              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-              <autoReleaseAfterClose>false</autoReleaseAfterClose>
-            </configuration>
-          </plugin>
-
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <version>${maven-gpg-plugin.version}</version>
-            <executions>
-              <execution>
-                <id>sign-artifacts</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>sign</goal>
                 </goals>
               </execution>
             </executions>
