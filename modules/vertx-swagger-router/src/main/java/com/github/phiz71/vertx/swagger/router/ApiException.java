@@ -16,6 +16,13 @@ public class ApiException extends RuntimeException {
         this.statusCode = statusCode;
         this.statusMessage = statusMessage;
     }
+    
+    public ApiException(int statusCode, String statusMessage, Throwable cause) {
+        super(cause);
+        this.headers = MultiMap.caseInsensitiveMultiMap();
+        this.statusCode = statusCode;
+        this.statusMessage = statusMessage;
+    }
 
     public ApiException addHeader(ApiHeader header) {
         if (header.getValue() != null)

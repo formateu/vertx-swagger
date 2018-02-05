@@ -10,11 +10,19 @@ public class {{classname}}Exception extends ApiException {
         super(statusCode, statusMessage);
     }
     
+    public {{classname}}Exception(int statusCode, String statusMessage, Throwable cause) {
+        super(statusCode, statusMessage, cause);
+    }
+    
     {{#operations}}{{#operation}}{{#responses}}{{^isDefault}}public static class {{{operationIdCamelCase}}}{{{code}}}Exception extends {{classname}}Exception {
         private static final long serialVersionUID = 1L;
         
         public {{{operationIdCamelCase}}}{{{code}}}Exception() {
         	super({{{code}}}, "{{{message}}}");
+        }
+        
+        public {{{operationIdCamelCase}}}{{{code}}}Exception(Throwable cause) {
+        	super({{{code}}}, "{{{message}}}", cause);
         }
     }
     {{/isDefault}}{{/responses}}{{/operation}}{{/operations}}
