@@ -43,7 +43,7 @@ public class JavaVertXServerGenerator extends AbstractJavaCodegen {
     private static final String VENDOR_EXTENSIONS_NEED_CAST = "X-needCast";
     private static final String VENDOR_EXTENSIONS_UPPER_SNAKE_CASE = "X-UPPER_SNAKE_CASE";
     
-    private static final String VENDOR_EXTENSIONS_HAS_JSON_BODY = "X-hasJSON";
+    private static final String VENDOR_EXTENSIONS_PARSE_JSON_BODY = "X-parseJSON";
 
     //Specific Java types & dataTypes
     private static final String DATATYPE_ARRAY = "array";
@@ -375,15 +375,15 @@ public class JavaVertXServerGenerator extends AbstractJavaCodegen {
         }
 
         if (codegenOperation.hasParams) {
-        	boolean hasJsonBody = false;
+        	boolean parseJsonBody = false;
         	for (CodegenParameter param : codegenOperation.allParams) {
-        		if (param.isListContainer || !param.isPrimitiveType) {
-        			hasJsonBody = true;
+        		if (param.isListContainer || !param.isPrimitiveType || !param.isString) {
+        			parseJsonBody = true;
         			break;
         		}
         	}
         	
-        	codegenOperation.vendorExtensions.put(VENDOR_EXTENSIONS_HAS_JSON_BODY, hasJsonBody);
+        	codegenOperation.vendorExtensions.put(VENDOR_EXTENSIONS_PARSE_JSON_BODY, parseJsonBody);
         }
         
         /*

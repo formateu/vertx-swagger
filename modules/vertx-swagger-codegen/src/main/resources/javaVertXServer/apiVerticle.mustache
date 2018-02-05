@@ -89,10 +89,10 @@ public class {{classname}}Verticle extends AbstractVerticle {
 {{>AsyncCall}}
     {{/rxInterface}}
     {{#vendorExtensions}}
-    	{{#X-hasJSON}}
+    	{{#X-parseJSON}}
     	} catch (JsonProcessingException e) {
     		verticleHelper.manageError(message, new {{classname}}Exception.{{operationIdCamelCase}}400Exception(), {{#vendorExtensions}}{{x-serviceId-varName}}{{/vendorExtensions}});
-    	{{/X-hasJSON}}
+    	{{/X-parseJSON}}
     {{/vendorExtensions}}
         } catch (Exception e) {
             verticleHelper.manageError(message, e, {{#vendorExtensions}}{{x-serviceId-varName}}{{/vendorExtensions}});

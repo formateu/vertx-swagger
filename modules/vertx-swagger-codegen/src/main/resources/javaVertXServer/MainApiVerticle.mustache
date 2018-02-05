@@ -43,7 +43,7 @@ public class MainApiVerticle extends AbstractVerticle {
                 LOGGER.info("{{classname}}Verticle : Deployed");
             } else {
                 startFuture.fail(res.cause());
-                LOGGER.error("{{classname}}Verticle : Deployement failed");
+                LOGGER.error("{{classname}}Verticle : Deployment failed");
             }
         });
         {{/apis}}{{/apiInfo}}
