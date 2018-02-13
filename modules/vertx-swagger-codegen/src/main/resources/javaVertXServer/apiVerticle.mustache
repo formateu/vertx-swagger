@@ -28,7 +28,7 @@ public class {{classname}}Verticle extends AbstractVerticle {
     {{#operations}}{{#operation}}{{#vendorExtensions}}private static final String {{x-serviceId-varName}} = "{{x-serviceId}}";
     {{/vendorExtensions}}{{/operation}}{{/operations}}
 
-    private {{classname}} service = createServiceImplementation();
+    private {{classname}} service;
 
     {{#operations}}{{#operation}}//Handler for {{#vendorExtensions}}{{x-serviceId}}{{/vendorExtensions}}
     final Handler<Message<JsonObject>> {{#vendorExtensions}}{{x-serviceId}}{{/vendorExtensions}}Handler = message -> {
@@ -108,6 +108,7 @@ public class {{classname}}Verticle extends AbstractVerticle {
 
     @Override
     public void start() throws Exception {
+        service = createServiceImplementation();
         {{#operations}}{{#operation}}vertx.eventBus().<JsonObject> consumer({{#vendorExtensions}}{{x-serviceId-varName}}{{/vendorExtensions}}).handler({{#vendorExtensions}}{{x-serviceId}}{{/vendorExtensions}}Handler);
         {{/operation}}{{/operations}}
     }
