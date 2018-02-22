@@ -16,8 +16,14 @@ import io.vertx.ext.web.Router;
 public class MainApiVerticle extends AbstractVerticle {
     private static final Logger LOGGER = LoggerFactory.getLogger(MainApiVerticle.class);
     
+    private static final Class<?>[] verticlesToDeploy = {
+    {{#apiInfo}}{{#apis}}	{{apiPackage}}.{{classname}}Verticle.class{{^-last}},
+    {{/-last}}{{/apis}}{{/apiInfo}}
+    };
+    
     @Override
     public void start(Future<Void> startFuture) throws Exception {
+    	LOGGER.info("Starting MainApiVerticle");
         Json.mapper.registerModule(new JavaTimeModule());
     	FileSystem vertxFileSystem = vertx.fileSystem();
         vertxFileSystem.readFile("swagger.json", readFile -> {
@@ -35,17 +41,23 @@ public class MainApiVerticle extends AbstractVerticle {
             }
         });        		        
     }
-      
-    public void deployVerticles(Future<Void> startFuture) {
-        {{#apiInfo}}{{#apis}}
-        vertx.deployVerticle("{{apiPackage}}.{{classname}}Verticle", res -> {
-            if (res.succeeded()) {
-                LOGGER.info("{{classname}}Verticle : Deployed");
-            } else {
-                startFuture.fail(res.cause());
-                LOGGER.error("{{classname}}Verticle : Deployment failed");
-            }
-        });
-        {{/apis}}{{/apiInfo}}
+    
+	@Override
+    public void stop() {
+    	LOGGER.info("Stopping MainApiVerticle");
     }
+    
+    public void deployVerticles(Future<Void> startFuture) {
+		for (Class<?> clazz : verticlesToDeploy) {
+        	vertx.deployVerticle(clazz.getName(), res -> {
+	            if (res.succeeded()) {
+	                LOGGER.info(String.format("%s (%s) deployed", clazz.getSimpleName(), res.result()));
+	            } else {
+	                startFuture.fail(res.cause());
+	                LOGGER.error(clazz.getSimpleName() + " deployment failed");
+	            }
+	        });
+     	}
+    }
+    
 }
