@@ -2,10 +2,12 @@ package com.github.phiz71.vertx.swagger.codegen;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,6 +16,7 @@ import io.swagger.codegen.CodegenModel;
 import io.swagger.codegen.CodegenOperation;
 import io.swagger.codegen.CodegenParameter;
 import io.swagger.codegen.CodegenProperty;
+import io.swagger.codegen.CodegenResponse;
 import io.swagger.codegen.CodegenType;
 import io.swagger.codegen.SupportingFile;
 import io.swagger.codegen.languages.AbstractJavaCodegen;
@@ -382,6 +385,8 @@ public class JavaVertXServerGenerator extends AbstractJavaCodegen {
 			super.addOperationToGroup(tag, codegenOperation.path, operation, codegenOperation, operationMap);
 		}
 
+		filterUnusedImports(operation, codegenOperation);
+		
 		if (this.isJsonObjectGeneration) {
 			codegenOperation.imports.add(TYPE_JSON_OBJECT);
 			codegenOperation.imports.add(TYPE_JSON_ARRAY);
@@ -524,4 +529,24 @@ public class JavaVertXServerGenerator extends AbstractJavaCodegen {
 		}
 		return word;
 	}
+	
+	private void filterUnusedImports(Operation operation, CodegenOperation codegenOperation) {
+		Set<String> imports = new HashSet<>();
+		for (CodegenResponse r : codegenOperation.responses) {
+			if (r.isDefault) {
+				if (needToImport(r.baseType)) {
+					imports.add(r.baseType);
+				}
+			}
+		}
+		
+		for (CodegenParameter p : codegenOperation.allParams) {
+			if (needToImport(p.baseType)) {
+				imports.add(p.baseType);
+			}
+		}
+		
+		codegenOperation.imports = imports;
+	}
+
 }

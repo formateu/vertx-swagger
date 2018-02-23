@@ -54,7 +54,7 @@ public class MainApiVerticle extends AbstractVerticle {
 	                LOGGER.info(String.format("%s (%s) deployed", clazz.getSimpleName(), res.result()));
 	            } else {
 	                startFuture.fail(res.cause());
-	                LOGGER.error(clazz.getSimpleName() + " deployment failed");
+	                LOGGER.error(clazz.getSimpleName() + " - deployment failed");
 	            }
 	        });
      	}

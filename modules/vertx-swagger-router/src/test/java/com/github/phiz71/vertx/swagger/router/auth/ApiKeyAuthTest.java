@@ -1,8 +1,6 @@
 package com.github.phiz71.vertx.swagger.router.auth;
 
 import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
