@@ -386,7 +386,7 @@ public class JavaVertXServerGenerator extends AbstractJavaCodegen {
 		}
 
 		filterUnusedImports(operation, codegenOperation);
-		
+
 		if (this.isJsonObjectGeneration) {
 			codegenOperation.imports.add(TYPE_JSON_OBJECT);
 			codegenOperation.imports.add(TYPE_JSON_ARRAY);
@@ -529,24 +529,30 @@ public class JavaVertXServerGenerator extends AbstractJavaCodegen {
 		}
 		return word;
 	}
-	
+
 	private void filterUnusedImports(Operation operation, CodegenOperation codegenOperation) {
 		Set<String> imports = new HashSet<>();
+		Set<String> allResponseImports = new HashSet<>();
 		for (CodegenResponse r : codegenOperation.responses) {
-			if (r.isDefault) {
-				if (needToImport(r.baseType)) {
+			if (needToImport(r.baseType)) {
+				if (r.isDefault) {
 					imports.add(r.baseType);
 				}
+				allResponseImports.add(r.baseType);
 			}
 		}
-		
+
 		for (CodegenParameter p : codegenOperation.allParams) {
 			if (needToImport(p.baseType)) {
 				imports.add(p.baseType);
 			}
 		}
-		
-		codegenOperation.imports = imports;
+
+		for (String type : allResponseImports) {
+			if (!imports.contains(type)) {
+				codegenOperation.imports.remove(type);
+			}
+		}
 	}
 
 }
