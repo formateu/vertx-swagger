@@ -114,6 +114,6 @@ public class {{classname}}Verticle extends AbstractVerticle {
     }
 
     protected {{classname}} createServiceImplementation() {
-        return new {{classname}}Impl(vertx);
+        return new {{classname}}Impl(vertx, config());
     }
 }
