@@ -55,7 +55,7 @@ public class MainApiVerticle extends AbstractVerticle {
 			compositeFuture = CompositeFuture.all(future, compositeFuture);
 			vertx.deployVerticle(clazz.getName(), new DeploymentOptions().setConfig(config()), res -> {
 				if (res.succeeded()) {
-					future.succeeded();
+					future.complete();
 					LOGGER.info(String.format("%s (%s) deployed", clazz.getSimpleName(), res.result()));
 				} else {
 					future.fail(res.cause());
@@ -66,7 +66,7 @@ public class MainApiVerticle extends AbstractVerticle {
 
 		compositeFuture.setHandler(res -> {
 			if (res.succeeded()) {
-				startFuture.succeeded();
+				startFuture.complete();
 			} else {
 				startFuture.fail(res.cause());
 			}
