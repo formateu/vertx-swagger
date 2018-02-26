@@ -6,6 +6,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.github.phiz71.vertx.swagger.router.SwaggerRouter;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.CompositeFuture;
+import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
 import io.vertx.core.file.FileSystem;
 import io.vertx.core.json.Json;
@@ -35,7 +37,6 @@ public class MainApiVerticle extends AbstractVerticle {
                 vertx.createHttpServer() 
                     .requestHandler(swaggerRouter::accept) 
                     .listen(config().getInteger("http.port", {{serverPort}}));
-                startFuture.complete();
             } else {
             	startFuture.fail(readFile.cause());
             }
@@ -48,16 +49,28 @@ public class MainApiVerticle extends AbstractVerticle {
     }
     
     public void deployVerticles(Future<Void> startFuture) {
+		Future<CompositeFuture> compositeFuture = Future.succeededFuture();
 		for (Class<?> clazz : verticlesToDeploy) {
-        	vertx.deployVerticle(clazz.getName(), res -> {
-	            if (res.succeeded()) {
-	                LOGGER.info(String.format("%s (%s) deployed", clazz.getSimpleName(), res.result()));
-	            } else {
-	                startFuture.fail(res.cause());
-	                LOGGER.error(clazz.getSimpleName() + " - deployment failed");
-	            }
-	        });
-     	}
+			Future<Void> future = Future.future();
+			compositeFuture = CompositeFuture.all(future, compositeFuture);
+			vertx.deployVerticle(clazz.getName(), new DeploymentOptions().setConfig(config()), res -> {
+				if (res.succeeded()) {
+					future.succeeded();
+					LOGGER.info(String.format("%s (%s) deployed", clazz.getSimpleName(), res.result()));
+				} else {
+					future.fail(res.cause());
+					LOGGER.error(clazz.getSimpleName() + " - deployment failed");
+				}
+			});
+		}
+
+		compositeFuture.setHandler(res -> {
+			if (res.succeeded()) {
+				startFuture.succeeded();
+			} else {
+				startFuture.fail(res.cause());
+			}
+		});
     }
     
 }
