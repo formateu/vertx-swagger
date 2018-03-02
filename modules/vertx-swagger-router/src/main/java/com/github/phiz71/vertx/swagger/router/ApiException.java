@@ -54,5 +54,10 @@ public class ApiException extends RuntimeException {
         return statusMessage;
     }
     
+    @Override
+    public String toString() {
+    	return String.format("%d %d", getStatusCode(), getStatusMessage());
+    }
+    
     public static final ApiException INTERNAL_SERVER_ERROR = new ApiException(500, "Internal Server Error"); 
 }
