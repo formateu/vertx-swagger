@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 
 public abstract class AbstractSerializableParameterExtractor {
     public Object extract(String name, Parameter parameter, MultiMap params) {
-        AbstractSerializableParameter abstractSerializableParameter = (AbstractSerializableParameter) parameter;
+        AbstractSerializableParameter<?> abstractSerializableParameter = (AbstractSerializableParameter<?>) parameter;
         if (!params.contains(name)) {
             if (abstractSerializableParameter.getRequired()) {
                 throw new IllegalArgumentException("Missing required parameter: " + name);

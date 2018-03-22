@@ -1,23 +1,22 @@
 package com.github.phiz71.rxjava.vertx.swagger.router;
 
-import com.github.phiz71.rxjava.vertx.swagger.router.SwaggerRouter;
-import io.swagger.models.Swagger;
-import io.swagger.parser.SwaggerParser;
+import java.nio.charset.Charset;
 
-import io.vertx.core.json.JsonArray;
-import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.TestContext;
-import io.vertx.ext.unit.junit.VertxUnitRunner;
-import io.vertx.rxjava.core.Vertx;
-import io.vertx.rxjava.core.buffer.Buffer;
-import io.vertx.rxjava.core.eventbus.EventBus;
-import io.vertx.rxjava.core.file.FileSystem;
-import io.vertx.rxjava.ext.web.Router;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.nio.charset.Charset;
+import io.swagger.models.Swagger;
+import io.swagger.parser.SwaggerParser;
+import io.vertx.core.json.JsonArray;
+import io.vertx.ext.unit.Async;
+import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.junit.VertxUnitRunner;
+import io.vertx.reactivex.core.Vertx;
+import io.vertx.reactivex.core.buffer.Buffer;
+import io.vertx.reactivex.core.eventbus.EventBus;
+import io.vertx.reactivex.core.file.FileSystem;
+import io.vertx.reactivex.ext.web.Router;
 
 @RunWith(VertxUnitRunner.class)
 public class SwaggerRouterTest {

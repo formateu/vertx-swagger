@@ -1,8 +1,6 @@
 package com.github.phiz71.vertx.swagger.router.auth;
 
 import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -53,7 +51,6 @@ public class ChainingAuthTest {
         vertx = Vertx.vertx();
         eventBus = vertx.eventBus();
 
-        Map<String, AuthProvider> authProviders = new HashMap<>();
         AuthProvider A_AuthProvider = new AuthProvider() {
 			
 			@Override
