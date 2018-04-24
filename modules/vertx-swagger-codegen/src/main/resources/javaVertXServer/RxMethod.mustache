@@ -1,7 +1,7 @@
-    default Single<ResourceResponse<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}>> {{operationId}}WithHeader({{#allParams}}{{{dataType}}} {{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}}{{#hasAuthMethods}}{{#hasParams}}, {{/hasParams}}User user{{/hasAuthMethods}}) { 
+    default Single<ResourceResponse<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}>> {{operationId}}WithHeader({{#allParams}}{{#isEnum}}{{#isPrimitiveType}}{{{datatypeWithEnum}}}{{/isPrimitiveType}}{{^isPrimitiveType}}{{{dataType}}}{{/isPrimitiveType}}{{/isEnum}}{{^isEnum}}{{{dataType}}}{{/isEnum}} {{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}}{{#hasAuthMethods}}{{#hasParams}}, {{/hasParams}}User user{{/hasAuthMethods}}) { 
     	return {{operationId}}({{#allParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}}{{#hasAuthMethods}}{{#hasParams}}, {{/hasParams}}user{{/hasAuthMethods}}).compose(emptyHeaderWrapper()); 
     }
     
-    default Single<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}> {{operationId}}({{#allParams}}{{{dataType}}} {{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}}{{#hasAuthMethods}}{{#hasParams}}, {{/hasParams}}User user{{/hasAuthMethods}}) { 
+    default Single<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}> {{operationId}}({{#allParams}}{{#isEnum}}{{#isPrimitiveType}}{{{datatypeWithEnum}}}{{/isPrimitiveType}}{{^isPrimitiveType}}{{{dataType}}}{{/isPrimitiveType}}{{/isEnum}}{{^isEnum}}{{{dataType}}}{{/isEnum}} {{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}}{{#hasAuthMethods}}{{#hasParams}}, {{/hasParams}}User user{{/hasAuthMethods}}) { 
     	return Single.error(new UnsupportedOperationException("Not implemented"));
     }

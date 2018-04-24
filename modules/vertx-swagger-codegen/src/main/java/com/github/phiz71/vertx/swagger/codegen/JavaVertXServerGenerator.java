@@ -22,10 +22,17 @@ import io.swagger.codegen.SupportingFile;
 import io.swagger.codegen.languages.AbstractJavaCodegen;
 import io.swagger.models.HttpMethod;
 import io.swagger.models.Model;
+import io.swagger.models.ModelImpl;
 import io.swagger.models.Operation;
 import io.swagger.models.Path;
 import io.swagger.models.Swagger;
+import io.swagger.models.parameters.Parameter;
+import io.swagger.models.parameters.PathParameter;
+import io.swagger.models.parameters.QueryParameter;
+import io.swagger.models.parameters.SerializableParameter;
 import io.swagger.models.properties.Property;
+import io.swagger.models.properties.PropertyBuilder;
+import io.swagger.models.properties.PropertyBuilder.PropertyId;
 import io.swagger.util.Json;
 
 public class JavaVertXServerGenerator extends AbstractJavaCodegen {
@@ -47,6 +54,7 @@ public class JavaVertXServerGenerator extends AbstractJavaCodegen {
 	private static final String VENDOR_EXTENSIONS_UPPER_SNAKE_CASE = "X-UPPER_SNAKE_CASE";
 
 	private static final String VENDOR_EXTENSIONS_PARSE_JSON_BODY = "X-parseJSON";
+	private static final String VENDOR_EXTENSIONS_VALIDATE_ENUM = "X-validateEnum";
 
 	// Specific Java types & dataTypes
 	private static final String DATATYPE_ARRAY = "array";
@@ -130,7 +138,8 @@ public class JavaVertXServerGenerator extends AbstractJavaCodegen {
 				"When specified, MainApiVerticle.java will not be generated"));
 
 		cliOptions.add(
-				CliOption.newBoolean(API_IMPL_GENERATION_OPTION, "When specified, xxxApiImpl.java will be generated"));
+				CliOption.newBoolean(API_IMPL_GENERATION_OPTION,
+						"When specified, xxxApiImpl.java will be generated"));
 
 		cliOptions.add(CliOption.newBoolean(JSON_OBJECT_MODEL_GENERATION_OPTION,
 				"When specified, model classes will extend JsonObject"));
@@ -185,7 +194,8 @@ public class JavaVertXServerGenerator extends AbstractJavaCodegen {
 		supportingFiles.clear();
 		supportingFiles.add(new SupportingFile("swagger.mustache", resourceFolder, "swagger.json"));
 
-		Object mainApiVerticleGenerationOption = additionalProperties.get(MAIN_API_VERTICAL_GENERATION_OPTION);
+		Object mainApiVerticleGenerationOption = additionalProperties
+				.get(MAIN_API_VERTICAL_GENERATION_OPTION);
 		if (mainApiVerticleGenerationOption == null
 				|| Boolean.parseBoolean(mainApiVerticleGenerationOption.toString())) {
 			supportingFiles.add(new SupportingFile("MainApiVerticle.mustache",
@@ -193,12 +203,14 @@ public class JavaVertXServerGenerator extends AbstractJavaCodegen {
 					"MainApiVerticle.java"));
 		}
 		Object apiImplGenerationOption = additionalProperties.get(API_IMPL_GENERATION_OPTION);
-		if (apiImplGenerationOption != null && Boolean.parseBoolean(apiImplGenerationOption.toString())) {
+		if (apiImplGenerationOption != null
+				&& Boolean.parseBoolean(apiImplGenerationOption.toString())) {
 			apiTemplateFiles.put("apiImpl.mustache", // the template to use
 					"Impl.java"); // the extension for each file to write
 		}
 
-		Object jsonObjectModelGenerationOption = additionalProperties.get(JSON_OBJECT_MODEL_GENERATION_OPTION);
+		Object jsonObjectModelGenerationOption = additionalProperties
+				.get(JSON_OBJECT_MODEL_GENERATION_OPTION);
 		this.isJsonObjectGeneration = (jsonObjectModelGenerationOption != null
 				&& Boolean.parseBoolean(jsonObjectModelGenerationOption.toString()));
 		String apiTemplate = "";
@@ -246,22 +258,27 @@ public class JavaVertXServerGenerator extends AbstractJavaCodegen {
 				".java"); // the extension for each file to write
 
 		supportingFiles.add(new SupportingFile("ResourceResponse.mustache",
-				sourceFolder + File.separator + invokerPackage.replace(".", File.separator) + File.separator + "util",
+				sourceFolder + File.separator + invokerPackage.replace(".", File.separator)
+						+ File.separator + "util",
 				"ResourceResponse.java"));
 
 		Object rxInterfaceGenerationOption = additionalProperties.get(RX_INTERFACE_OPTION);
-		if (rxInterfaceGenerationOption != null && Boolean.parseBoolean(rxInterfaceGenerationOption.toString())) {
+		if (rxInterfaceGenerationOption != null
+				&& Boolean.parseBoolean(rxInterfaceGenerationOption.toString())) {
 			supportingFiles.add(new SupportingFile(
 					"ResourceResponseRxWrapper.mustache", sourceFolder + File.separator
 							+ invokerPackage.replace(".", File.separator) + File.separator + "util",
 					"ResourceResponseRxWrapper.java"));
 		}
 
-		writeOptional(outputFolder, new SupportingFile("vertx-default-jul-logging.mustache", resourceFolder,
-				"vertx-default-jul-logging.properties"));
-		writeOptional(outputFolder, new SupportingFile("vertx-application-config.mustache", "", "config.json"));
 		writeOptional(outputFolder,
-				new SupportingFile("swagger-codegen-ignore.mustache", "", ".swagger-codegen-ignore"));
+				new SupportingFile("vertx-default-jul-logging.mustache", resourceFolder,
+						"vertx-default-jul-logging.properties"));
+		writeOptional(outputFolder,
+				new SupportingFile("vertx-application-config.mustache", "", "config.json"));
+		writeOptional(outputFolder,
+				new SupportingFile("swagger-codegen-ignore.mustache", "",
+						".swagger-codegen-ignore"));
 	}
 
 	@Override
@@ -273,7 +290,8 @@ public class JavaVertXServerGenerator extends AbstractJavaCodegen {
 		} else {
 			if (serializeBigDecimalAsString && property.baseType.equals("BigDecimal")) {
 				// we serialize BigDecimal as `string` to avoid precision loss
-				property.vendorExtensions.put("extraAnnotation", "@JsonSerialize(using = ToStringSerializer.class)");
+				property.vendorExtensions.put("extraAnnotation",
+						"@JsonSerialize(using = ToStringSerializer.class)");
 
 				// this requires some more imports to be added for this model...
 				model.imports.add("ToStringSerializer");
@@ -380,9 +398,11 @@ public class JavaVertXServerGenerator extends AbstractJavaCodegen {
 	@Override
 	public CodegenOperation fromOperation(String path, String httpMethod, Operation operation,
 			Map<String, Model> definitions, Swagger swagger) {
-		CodegenOperation codegenOperation = super.fromOperation(path, httpMethod, operation, definitions, swagger);
+		CodegenOperation codegenOperation = super.fromOperation(path, httpMethod, operation,
+				definitions, swagger);
 		for (String tag : operation.getTags()) {
-			super.addOperationToGroup(tag, codegenOperation.path, operation, codegenOperation, operationMap);
+			super.addOperationToGroup(tag, codegenOperation.path, operation, codegenOperation,
+					operationMap);
 		}
 
 		filterUnusedImports(operation, codegenOperation);
@@ -394,14 +414,22 @@ public class JavaVertXServerGenerator extends AbstractJavaCodegen {
 
 		if (codegenOperation.hasParams) {
 			boolean parseJsonBody = false;
-			for (CodegenParameter param : codegenOperation.allParams) {
-				if ((param.isListContainer || !param.isPrimitiveType || !param.isString) && !param.isFile) {
+			boolean validateEnum = false;
+			for (CodegenParameter param : codegenOperation.allParams) {				
+				if ((param.isListContainer || !param.isPrimitiveType || !param.isString)
+						&& !param.isFile) {
 					parseJsonBody = true;
-					break;
 				}
+
+				if (param.isEnum && param.isPrimitiveType) {
+					codegenOperation.imports.add(param.enumName);
+					validateEnum = true;
+				}
+
 			}
 
 			codegenOperation.vendorExtensions.put(VENDOR_EXTENSIONS_PARSE_JSON_BODY, parseJsonBody);
+			codegenOperation.vendorExtensions.put(VENDOR_EXTENSIONS_VALIDATE_ENUM, validateEnum);
 		}
 
 		/*
@@ -474,6 +502,8 @@ public class JavaVertXServerGenerator extends AbstractJavaCodegen {
 				manageOperationNames(entry.getValue(), entry.getKey());
 			}
 		}
+
+		addInlineEnumsToModel(swagger);
 	}
 
 	private void manageOperationNames(Path path, String pathname) {
@@ -486,9 +516,54 @@ public class JavaVertXServerGenerator extends AbstractJavaCodegen {
 				entry.getValue()
 						.setVendorExtension("x-serviceId", serviceIdTemp);
 				entry.getValue()
-						.setVendorExtension("x-serviceId-varName", serviceIdTemp.toUpperCase() + "_SERVICE_ID");
+						.setVendorExtension("x-serviceId-varName",
+								serviceIdTemp.toUpperCase() + "_SERVICE_ID");
 			}
 		}
+	}
+
+	private void addInlineEnumsToModel(Swagger swagger) {
+		Map<String, Path> paths = swagger.getPaths();
+
+		if (paths == null) {
+			return;
+		}
+
+		for (String pathname : paths.keySet()) {
+			for (Operation operation : paths.get(pathname).getOperations()) {
+				List<Parameter> parameters = operation.getParameters();
+
+				if (parameters == null) {
+					continue;
+				}
+
+				for (Parameter parameter : parameters) {
+					if ((parameter instanceof QueryParameter || parameter instanceof PathParameter)
+							&& parameter instanceof SerializableParameter) {
+						processSerializableParameter(swagger, (SerializableParameter) parameter);
+					}
+				}
+			}
+		}
+
+	}
+
+	private void processSerializableParameter(Swagger swagger, SerializableParameter parameter) {
+		String type = parameter.getType();
+		if (!"string".equals(type)) {
+			return;
+		}
+		List<String> values = parameter.getEnum();
+		if (parameter.getEnum() == null) {
+			return;
+		}
+
+		Map<PropertyId, Object> args = new HashMap<PropertyId, Object>();
+		args.put(PropertyId.ENUM, values);
+		Property property = PropertyBuilder.build(type, parameter.getFormat(), args);
+		CodegenProperty cp = fromProperty(parameter.getName(), property);
+
+		swagger.addDefinition(toEnumName(cp), new ModelImpl()._enum(values).type(type));
 	}
 
 	private String computeServiceId(String pathname, Entry<HttpMethod, Operation> entry) {

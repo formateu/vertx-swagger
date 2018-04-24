@@ -43,34 +43,47 @@ public class {{classname}}Verticle extends AbstractVerticle {
             {{/isListContainer}}
             {{^isListContainer}}
                 {{#isPrimitiveType}}
-                    {{#isString}}
-                        {{#vendorExtensions}}
-                            {{#X-isUUID}}
-                                {{#required}}
+                	{{#isEnum}}
+                		{{#required}}
+            {{{datatypeWithEnum}}} {{paramName}} = VerticleHelper.convertEnum({{{datatypeWithEnum}}}.class, message.body().getString("{{baseName}}"));
+                        {{/required}}
+                        {{^required}}
+            {{{datatypeWithEnum}}} {{paramName}} = null;
+            if (message.body().getString("{{baseName}}") != null) {
+                {{paramName}} = VerticleHelper.convertEnum({{{datatypeWithEnum}}}.class, message.body().getString("{{baseName}}"));
+            }           
+                        {{/required}}
+                	{{/isEnum}}
+                	{{^isEnum}}
+	                    {{#isString}}
+	                        {{#vendorExtensions}}
+	                            {{#X-isUUID}}
+	                                {{#required}}
             {{{dataType}}} {{paramName}} = {{{dataType}}}.fromString(message.body().getString("{{baseName}}"));
-                                {{/required}}
-                                {{^required}}
+	                                {{/required}}
+	                                {{^required}}
             {{{dataType}}} {{paramName}} = null;
-            if(message.body().getString("{{baseName}}") != null) {
+            if (message.body().getString("{{baseName}}") != null) {
                 {{paramName}} = {{{dataType}}}.fromString(message.body().getString("{{baseName}}"));
             }
-                                {{/required}}
-                            {{/X-isUUID}}
-                            {{^X-isUUID}}
+	                                {{/required}}
+	                            {{/X-isUUID}}
+	                            {{^X-isUUID}}
             {{{dataType}}} {{paramName}} = message.body().getString("{{baseName}}");
-                            {{/X-isUUID}}
-                        {{/vendorExtensions}}
-                        {{^vendorExtensions}}
+	                            {{/X-isUUID}}
+	                        {{/vendorExtensions}}
+	                        {{^vendorExtensions}}
             {{{dataType}}} {{paramName}} = message.body().getString("{{baseName}}");
-                        {{/vendorExtensions}}
-                    {{/isString}}
+	                        {{/vendorExtensions}}
+	                    {{/isString}}
+	                {{/isEnum}}
                     {{^isString}}
                         {{#required}}
             {{{dataType}}} {{paramName}} = Json.mapper.readValue(message.body().getString("{{baseName}}"), {{{dataType}}}.class);
                         {{/required}}
                         {{^required}}
             {{{dataType}}} {{paramName}} = null;
-            if(message.body().getString("{{baseName}}") != null) {
+            if (message.body().getString("{{baseName}}") != null) {
                 {{paramName}} = Json.mapper.readValue(message.body().getString("{{baseName}}"), {{{dataType}}}.class);
             }
                         {{/required}}
@@ -94,6 +107,10 @@ public class {{classname}}Verticle extends AbstractVerticle {
 {{>AsyncCall}}
     {{/rxInterface}}
     {{#vendorExtensions}}
+    	{{#X-validateEnum}}
+    	} catch (com.github.phiz71.vertx.swagger.router.EnumParseException e) {
+    		verticleHelper.manageError(message, new com.github.phiz71.vertx.swagger.router.ApiException(400, "Invalid enum value", e), {{#vendorExtensions}}{{x-serviceId-varName}}{{/vendorExtensions}});
+    	{{/X-validateEnum}}
     	{{#X-parseJSON}}
     	} catch (JsonProcessingException e) {
     		verticleHelper.manageError(message, new {{classname}}Exception.{{operationIdCamelCase}}400Exception(e), {{#vendorExtensions}}{{x-serviceId-varName}}{{/vendorExtensions}});

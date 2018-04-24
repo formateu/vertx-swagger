@@ -3,6 +3,7 @@ package {{invokerPackage}}.util;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.phiz71.vertx.swagger.router.ApiErrorHandler;
 import com.github.phiz71.vertx.swagger.router.DefaultApiErrorHandler;
+import com.github.phiz71.vertx.swagger.router.EnumParseException;
 
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.Message;
@@ -63,7 +64,7 @@ public class VerticleHelper {
             if (result.succeeded()) {
                 DeliveryOptions deliveryOptions = new DeliveryOptions();
                 deliveryOptions.setHeaders(result.result().getHeaders());
-                if(withJsonEncode) {
+                if (withJsonEncode) {
                     message.reply(Json.encode(result.result().getResponse()), deliveryOptions);
                 } else {
                     message.reply(result.result().getResponse(), deliveryOptions);
@@ -78,6 +79,14 @@ public class VerticleHelper {
 
     public void manageError(Message<JsonObject> message, Throwable cause, String serviceName) {
         VerticleHelper.apiErrorHandler.manageError(message, cause, serviceName, logger);
+    }
+    
+    public static <T extends Enum<T>> T convertEnum(Class<T> clazz, String value) throws EnumParseException {
+    	try {
+    		return Enum.valueOf(clazz, value);
+    	} catch (IllegalArgumentException e) {
+    		throw new EnumParseException(e);
+    	}
     }
 
 }
