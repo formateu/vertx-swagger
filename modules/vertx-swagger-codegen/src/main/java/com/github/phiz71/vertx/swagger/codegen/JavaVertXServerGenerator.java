@@ -25,6 +25,7 @@ import io.swagger.models.Model;
 import io.swagger.models.ModelImpl;
 import io.swagger.models.Operation;
 import io.swagger.models.Path;
+import io.swagger.models.Response;
 import io.swagger.models.Swagger;
 import io.swagger.models.parameters.Parameter;
 import io.swagger.models.parameters.PathParameter;
@@ -190,6 +191,8 @@ public class JavaVertXServerGenerator extends AbstractJavaCodegen {
 		importMapping.put(TYPE_JSON_VALUE, "com.fasterxml.jackson.annotation.JsonValue");
 		importMapping.put("ResourceResponse", invokerPackage + ".util.ResourceResponse");
 		importMapping.put("VerticleHelper", invokerPackage + ".util.VerticleHelper");
+
+		typeMapping.put("file", "com.github.phiz71.vertx.swagger.router.UploadedFile");
 
 		supportingFiles.clear();
 		supportingFiles.add(new SupportingFile("swagger.mustache", resourceFolder, "swagger.json"));
@@ -380,7 +383,7 @@ public class JavaVertXServerGenerator extends AbstractJavaCodegen {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Map<String, Object> postProcessOperations(Map<String, Object> objs) {
-		Map<String, Object> newObjs = super.postProcessOperations(objs);
+		Map<String, Object> newObjs = objs;
 		Map<String, Object> operations = (Map<String, Object>) newObjs.get("operations");
 		assert operations != null;
 		List<CodegenOperation> ops = (List<CodegenOperation>) operations.get("operation");
@@ -415,7 +418,11 @@ public class JavaVertXServerGenerator extends AbstractJavaCodegen {
 		if (codegenOperation.hasParams) {
 			boolean parseJsonBody = false;
 			boolean validateEnum = false;
-			for (CodegenParameter param : codegenOperation.allParams) {				
+			for (CodegenParameter param : codegenOperation.allParams) {
+				if (param.isListContainer) {
+					codegenOperation.imports.add("List");
+				}
+
 				if ((param.isListContainer || !param.isPrimitiveType || !param.isString)
 						&& !param.isFile) {
 					parseJsonBody = true;
@@ -432,20 +439,23 @@ public class JavaVertXServerGenerator extends AbstractJavaCodegen {
 			codegenOperation.vendorExtensions.put(VENDOR_EXTENSIONS_VALIDATE_ENUM, validateEnum);
 		}
 
-		/*
-		 * for (Map.Entry<String, Response> entry :
-		 * operation.getResponses().entrySet()) { Response response =
-		 * entry.getValue(); CodegenResponse r = fromResponse(entry.getKey(),
-		 * response);
-		 * 
-		 * for (CodegenProperty header : r.headers) { if (header.baseType !=
-		 * null && !defaultIncludes.contains(header.baseType) &&
-		 * !languageSpecificPrimitives.contains(header.baseType)) {
-		 * codegenOperation.imports.add(header.complexType); } }
-		 * 
-		 * }
-		 */
+		for (Map.Entry<String, Response> entry : operation.getResponses().entrySet()) {
+			Response response = entry.getValue();
+			CodegenResponse r = fromResponse(entry.getKey(), response);
 
+			for (CodegenProperty header : r.headers) {
+				if (header.baseType != null && !defaultIncludes.contains(header.baseType) &&
+						!languageSpecificPrimitives.contains(header.baseType)) {
+					codegenOperation.imports.add(header.complexType);
+				}
+			}
+			
+			if (r.isListContainer) {
+				codegenOperation.imports.add("List");
+			}
+
+		}
+		
 		return codegenOperation;
 	}
 
