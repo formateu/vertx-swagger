@@ -393,6 +393,10 @@ public class JavaVertXServerGenerator extends AbstractJavaCodegen {
 			if (operation.getHasPathParams()) {
 				operation.path = camelizePath(operation.path);
 			}
+			
+			if (operation.hasAuthMethods) {
+				objs.put("hasAuthMethods", true);
+			}
 
 		}
 		return newObjs;

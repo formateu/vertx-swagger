@@ -10,7 +10,7 @@ import static {{invokerPackage}}.util.ResourceResponseRxWrapper.emptyHeaderWrapp
 
 import io.reactivex.Single;
 {{#hasAuthMethods}}
-import io.vertx.rxjava.ext.auth.User;
+import io.vertx.reactivex.ext.auth.User;
 {{/hasAuthMethods}}
 {{/rxInterface}}
 {{^rxInterface}}
