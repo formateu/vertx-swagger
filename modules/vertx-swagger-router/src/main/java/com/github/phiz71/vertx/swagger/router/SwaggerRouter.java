@@ -2,6 +2,7 @@ package com.github.phiz71.vertx.swagger.router;
 
 import static com.github.phiz71.vertx.swagger.router.auth.AuthProviderRegistry.getAuthProviderFactory;
 
+import java.util.Base64;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -213,7 +214,7 @@ public class SwaggerRouter {
 	private static void addAuthUserHeader(RoutingContext context, DeliveryOptions deliveryOptions) {
 		Buffer buffer = Buffer.buffer();
 		new UserHolder(context).writeToBuffer(buffer);
-		deliveryOptions.addHeader(AUTH_USER_HEADER_KEY, buffer.toString());
+		deliveryOptions.addHeader(AUTH_USER_HEADER_KEY, Base64.getEncoder().encodeToString(buffer.getBytes()));
 		String authProviderName = context.get(AUTH_PROVIDER_NAME_HEADER_KEY);
 		if (authProviderName != null) {
 			deliveryOptions.addHeader(AUTH_PROVIDER_NAME_HEADER_KEY, authProviderName);
@@ -224,7 +225,7 @@ public class SwaggerRouter {
 		User user = null;
 		String serializedUser = message.headers().get(SwaggerRouter.AUTH_USER_HEADER_KEY);
 		if (serializedUser != null && !serializedUser.isEmpty()) {
-			Buffer buffer = Buffer.buffer(serializedUser);
+			Buffer buffer = Buffer.buffer(Base64.getDecoder().decode(serializedUser));
 			UserHolder userHolder = new UserHolder();
 			userHolder.readFromBuffer(0, buffer);
 			user = userHolder.user;
