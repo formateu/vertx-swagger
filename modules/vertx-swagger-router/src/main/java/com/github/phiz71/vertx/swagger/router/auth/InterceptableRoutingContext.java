@@ -1,5 +1,9 @@
 package com.github.phiz71.vertx.swagger.router.auth;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
@@ -10,11 +14,14 @@ import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.User;
-import io.vertx.ext.web.*;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import io.vertx.ext.web.Cookie;
+import io.vertx.ext.web.FileUpload;
+import io.vertx.ext.web.LanguageHeader;
+import io.vertx.ext.web.Locale;
+import io.vertx.ext.web.ParsedHeaderValues;
+import io.vertx.ext.web.Route;
+import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.Session;
 
 public class InterceptableRoutingContext implements RoutingContext {
 
@@ -306,5 +313,10 @@ public class InterceptableRoutingContext implements RoutingContext {
 	@Override
 	public List<String> queryParam(String query) {
 		return this.inner.queryParam(query);
+	}
+
+	@Override
+	public Cookie removeCookie(String name, boolean invalidate) {
+		return this.inner.removeCookie(name, invalidate);
 	}
 }
