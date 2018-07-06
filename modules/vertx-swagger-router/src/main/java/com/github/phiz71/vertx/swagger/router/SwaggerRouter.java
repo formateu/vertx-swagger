@@ -24,6 +24,7 @@ import com.github.phiz71.vertx.swagger.router.extractors.ParameterExtractor;
 import com.github.phiz71.vertx.swagger.router.extractors.PathParameterExtractor;
 import com.github.phiz71.vertx.swagger.router.extractors.QueryParameterExtractor;
 
+import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.swagger.models.HttpMethod;
 import io.swagger.models.Operation;
@@ -36,6 +37,7 @@ import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.ReplyException;
+import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
@@ -188,6 +190,7 @@ public class SwaggerRouter {
 							manageHeaders(response, operationResponse.result().headers());
 
 							if (operationResponse.result().body() != null) {
+								response.putHeader(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
 								response.end(operationResponse.result().body());
 							} else {
 								response.end();
