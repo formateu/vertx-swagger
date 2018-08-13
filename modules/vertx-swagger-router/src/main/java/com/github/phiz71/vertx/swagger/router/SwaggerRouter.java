@@ -202,8 +202,10 @@ public class SwaggerRouter {
 						}
 					} catch (Throwable t) {
 						vertxLogger.error("Internal Server Error", t);
-						response.setStatusCode(HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
-						response.end();
+						if (!response.ended()) {
+							response.setStatusCode(HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
+							response.end();
+						}
 					}
 				});
 			} catch (Exception e) {
