@@ -17,8 +17,9 @@ public class FormParameterExtractor extends AbstractSerializableParameterExtract
 							.put("formFileName", file.fileName());
 				}
 			}
-			if (formParam.getRequired())
+			if (formParam.getRequired()) {
 				throw new IllegalArgumentException("Missing required parameter: " + name);
+			}
 			return null;
 		} else
 			return this.extract(name, parameter, context.request().formAttributes());

@@ -46,6 +46,14 @@ public class VerticleHelper {
         };
     }
 
+    public <T> Consumer<ResourceResponse<T>> getRxResultHandler(Message<JsonObject> message) {
+        return result -> {
+            DeliveryOptions deliveryOptions = new DeliveryOptions();
+            deliveryOptions.setHeaders(result.getHeaders());
+            message.reply(result.getResponse(), deliveryOptions);
+        };
+    }
+
     public <T> Consumer<ResourceResponse<T>> getRxResultHandler(Message<JsonObject> message, boolean withJsonEncode, TypeReference<T> type) {
         return result -> {
             DeliveryOptions deliveryOptions = new DeliveryOptions();

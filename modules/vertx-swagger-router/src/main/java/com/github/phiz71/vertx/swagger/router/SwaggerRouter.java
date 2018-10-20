@@ -2,14 +2,16 @@ package com.github.phiz71.vertx.swagger.router;
 
 import static com.github.phiz71.vertx.swagger.router.auth.AuthProviderRegistry.getAuthProviderFactory;
 
+import java.io.File;
 import java.util.Base64;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -30,6 +32,7 @@ import io.swagger.models.HttpMethod;
 import io.swagger.models.Operation;
 import io.swagger.models.SecurityRequirement;
 import io.swagger.models.Swagger;
+import io.vertx.core.AsyncResult;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
@@ -39,6 +42,7 @@ import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
@@ -55,7 +59,7 @@ public class SwaggerRouter {
 	private static Logger vertxLogger = LoggerFactory.getLogger(SwaggerRouter.class);
 
 	private static RouterFactory factory = new DefaultRouterFactory();
-	
+
 	public static final String CUSTOM_STATUS_CODE_HEADER_KEY = "CUSTOM_STATUS_CODE";
 	public static final String CUSTOM_STATUS_MESSAGE_HEADER_KEY = "CUSTOM_STATUS_MESSAGE";
 	public static final String AUTH_USER_HEADER_KEY = "AUTH_USER";
@@ -83,11 +87,11 @@ public class SwaggerRouter {
 	public static void setRouterFactory(RouterFactory factory) {
 		SwaggerRouter.factory = factory;
 	}
-	
+
 	public static Router createRouter(Vertx vertx, String swaggerDefinition) {
 		return factory.create(vertx, swaggerDefinition);
 	}
-	
+
 	public static Router swaggerRouter(Router baseRouter, Swagger swagger, EventBus eventBus) {
 		return swaggerRouter(baseRouter, swagger, eventBus, new DefaultServiceIdResolver(), null);
 	}
@@ -108,7 +112,7 @@ public class SwaggerRouter {
 					configureAuthRoute(baseRouter, method, convertedPath, swagger, operation, authHandlerFactory);
 					Route route = ROUTE_BUILDERS.get(method).buildRoute(baseRouter, convertedPath);
 					String serviceId = serviceIdResolver.resolve(method, path, operation);
-					configureRoute(route, serviceId, operation, eventBus, configureMessage);
+					configureRoute(route, swagger, serviceId, operation, eventBus, configureMessage);
 				}));
 
 		return baseRouter;
@@ -131,8 +135,10 @@ public class SwaggerRouter {
 					authHandler = authHandlerFactory.createAuthHandler(operation.getSecurity());
 				}
 			} else if (swagger.getSecurity() != null && !swagger.getSecurity().isEmpty()) {
-				List<Map<String, List<String>>> security = swagger.getSecurity().stream()
-						.map(SecurityRequirement::getRequirements).collect(Collectors.toList());
+				List<Map<String, List<String>>> security = swagger.getSecurity()
+						.stream()
+						.map(SecurityRequirement::getRequirements)
+						.collect(Collectors.toList());
 				authHandler = authHandlerFactory.createAuthHandler(security);
 			}
 		}
@@ -143,8 +149,11 @@ public class SwaggerRouter {
 	private static SwaggerAuthHandlerFactory getSwaggerAuthHandlerFactory(Swagger swagger) {
 		SwaggerAuthHandlerFactory authHandlerFactory = null;
 		if (swagger.getSecurityDefinitions() != null && !swagger.getSecurityDefinitions().isEmpty()) {
-			boolean hasAuthProvidersForOperation = swagger.getSecurityDefinitions().entrySet().stream()
-					.map(Map.Entry::getKey).map(name -> getAuthProviderFactory().getAuthProviderByName(name))
+			boolean hasAuthProvidersForOperation = swagger.getSecurityDefinitions()
+					.entrySet()
+					.stream()
+					.map(Map.Entry::getKey)
+					.map(name -> getAuthProviderFactory().getAuthProviderByName(name))
 					.anyMatch(Objects::nonNull);
 			if (hasAuthProvidersForOperation) {
 				authHandlerFactory = SwaggerAuthHandlerFactory.create(swagger.getSecurityDefinitions());
@@ -160,10 +169,11 @@ public class SwaggerRouter {
 		return result;
 	}
 
-	private static void configureRoute(Route route, String serviceId, Operation operation, EventBus eventBus,
+	private static void configureRoute(Route route, Swagger swagger, String serviceId, Operation operation,
+			EventBus eventBus,
 			Function<RoutingContext, DeliveryOptions> configureMessage) {
-		Optional.ofNullable(operation.getConsumes()).ifPresent(consumes -> consumes.forEach(route::consumes));
-		Optional.ofNullable(operation.getProduces()).ifPresent(produces -> produces.forEach(route::produces));
+		configure(swagger::getConsumes, operation::getConsumes, route::consumes);
+		configure(swagger::getProduces, operation::getProduces, route::produces);
 
 		route.handler(context -> {
 			try {
@@ -174,46 +184,41 @@ public class SwaggerRouter {
 					message.put(name, value);
 				});
 
-				// callback to configure message e.g. provide message header values
+				// callback to configure message e.g. provide message header
+				// values
 				DeliveryOptions deliveryOptions = configureMessage != null ? configureMessage.apply(context)
 						: new DeliveryOptions();
 
 				addAuthUserHeader(context, deliveryOptions);
 
-				context.request().headers()
+				context.request()
+						.headers()
 						.forEach(entry -> deliveryOptions.addHeader(entry.getKey(), entry.getValue()));
 
-				eventBus.<String>send(serviceId, message, deliveryOptions, operationResponse -> {
-					HttpServerResponse response = context.response();
-					try {
-						if (operationResponse.succeeded()) {
-							manageHeaders(response, operationResponse.result().headers());
-
-							if (operationResponse.result().body() != null) {
-								response.putHeader(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
-								response.end(operationResponse.result().body());
-							} else {
-								response.end();
-							}
-
-						} else {
-							vertxLogger.error("Internal Server Error", operationResponse.cause());
-							manageError((ReplyException) operationResponse.cause(), context.response());
-						}
-					} catch (Throwable t) {
-						vertxLogger.error("Internal Server Error", t);
-						if (!response.ended()) {
-							response.setStatusCode(HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
-							response.end();
-						}
-					}
-				});
+				eventBus.<Object>send(serviceId, message, deliveryOptions,
+						operationResponse -> responseHandler(context, operation, operationResponse));
 			} catch (Exception e) {
 				vertxLogger.error("sending Bad Request", e);
 				badRequestEnd(context.response());
 			}
 
 		});
+	}
+
+	private static void configure(Supplier<List<String>> global, Supplier<List<String>> operation,
+			Consumer<String> route) {
+		List<String> settings = operation.get();
+		if (settings == null || settings.isEmpty()) {
+			settings = global.get();
+		}
+
+		if (settings == null) {
+			return;
+		}
+
+		for (String setting : settings) {
+			route.accept(setting);
+		}
 	}
 
 	private static void addAuthUserHeader(RoutingContext context, DeliveryOptions deliveryOptions) {
@@ -242,6 +247,43 @@ public class SwaggerRouter {
 			}
 		}
 		return user;
+	}
+
+	private static void responseHandler(RoutingContext context, Operation operation,
+			AsyncResult<Message<Object>> operationResponse) {
+		HttpServerResponse response = context.response();
+		try {
+			if (operationResponse.failed()) {
+				vertxLogger.error("Internal Server Error", operationResponse.cause());
+				manageError((ReplyException) operationResponse.cause(), response);
+				return;
+			}
+
+			manageHeaders(response, operationResponse.result().headers());
+			Object body = operationResponse.result().body();
+			if (body instanceof File) {
+				response.sendFile(((File) body).getPath());
+				return;
+			} else if (body != null) {
+				if (!response.headWritten() && !response.headers().contains(HttpHeaders.CONTENT_TYPE)) {
+					CharSequence contentType = context.getAcceptableContentType();
+					if (contentType == null) {
+						contentType = HttpHeaderValues.APPLICATION_JSON;
+					}
+					response.putHeader(HttpHeaders.CONTENT_TYPE, contentType);
+				}
+				response.end(Json.encode(body));
+			} else {
+				response.end();
+			}
+
+		} catch (Throwable t) {
+			vertxLogger.error("Internal Server Error", t);
+			if (!response.ended()) {
+				response.setStatusCode(HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
+				response.end();
+			}
+		}
 	}
 
 	private static void manageHeaders(HttpServerResponse httpServerResponse, MultiMap messageHeaders) {

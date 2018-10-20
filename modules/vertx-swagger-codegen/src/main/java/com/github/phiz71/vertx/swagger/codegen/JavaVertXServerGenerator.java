@@ -460,6 +460,10 @@ public class JavaVertXServerGenerator extends AbstractJavaCodegen {
 
 		}
 		
+		if (codegenOperation.isResponseFile) {
+			codegenOperation.returnType = "java.io.File";
+		}
+		
 		return codegenOperation;
 	}
 
