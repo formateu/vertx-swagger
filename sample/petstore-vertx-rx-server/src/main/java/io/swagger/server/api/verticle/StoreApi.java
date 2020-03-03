@@ -1,29 +1,58 @@
 package io.swagger.server.api.verticle;
 
-import io.swagger.server.api.MainApiException;
-import io.swagger.server.api.MainApiHeader;
+import java.util.Map;
 import io.swagger.server.api.model.Order;
+
 import io.swagger.server.api.util.ResourceResponse;
-import io.swagger.server.api.util.VerticleHelper;
+
+import static io.swagger.server.api.util.ResourceResponseRxWrapper.emptyHeaderWrapper;
 
 import io.reactivex.Single;
-import io.reactivex.Completable;
-import io.vertx.rxjava.ext.auth.User;
-
-import java.util.List;
-import java.util.Map;
+import io.vertx.reactivex.ext.auth.User;
 
 public interface StoreApi  {
     //deleteOrder
-    Single<ResourceResponse<Void>> deleteOrder(Long orderId);
+    default Single<ResourceResponse<Void>> deleteOrderWithHeader(Long orderId) { 
+    	return deleteOrder(orderId).compose(emptyHeaderWrapper()); 
+    }
+    
+    default Single<Void> deleteOrder(Long orderId) { 
+    	return Single.error(new UnsupportedOperationException("Not implemented"));
+    }
+
     
     //getInventory
-    Single<ResourceResponse<Map<String, Integer>>> getInventory(User user);
+    default Single<ResourceResponse<Map<String, Integer>>> getInventoryWithHeader(User user) { 
+    	return getInventory(user).compose(emptyHeaderWrapper()); 
+    }
+    
+    default Single<Map<String, Integer>> getInventory(User user) { 
+    	return getInventory();
+    }
+    
+    default Single<Map<String, Integer>> getInventory() { 
+    	return Single.error(new UnsupportedOperationException("Not implemented"));
+    }
+
     
     //getOrderById
-    Single<ResourceResponse<Order>> getOrderById(Long orderId);
+    default Single<ResourceResponse<Order>> getOrderByIdWithHeader(Long orderId) { 
+    	return getOrderById(orderId).compose(emptyHeaderWrapper()); 
+    }
+    
+    default Single<Order> getOrderById(Long orderId) { 
+    	return Single.error(new UnsupportedOperationException("Not implemented"));
+    }
+
     
     //placeOrder
-    Single<ResourceResponse<Order>> placeOrder(Order body);
+    default Single<ResourceResponse<Order>> placeOrderWithHeader(Order body) { 
+    	return placeOrder(body).compose(emptyHeaderWrapper()); 
+    }
+    
+    default Single<Order> placeOrder(Order body) { 
+    	return Single.error(new UnsupportedOperationException("Not implemented"));
+    }
+
     
 }

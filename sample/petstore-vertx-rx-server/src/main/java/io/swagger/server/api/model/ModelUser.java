@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL) 
-public class ModelUser   {
+public class ModelUser {
   
   private Long id = null;
   private String username = null;
@@ -19,7 +19,7 @@ public class ModelUser   {
   public ModelUser () {
 
   }
-
+  
   public ModelUser (Long id, String username, String firstName, String lastName, String email, String password, String phone, Integer userStatus) {
     this.id = id;
     this.username = username;
@@ -30,7 +30,7 @@ public class ModelUser   {
     this.phone = phone;
     this.userStatus = userStatus;
   }
-
+  
     
   @JsonProperty("id")
   public Long getId() {

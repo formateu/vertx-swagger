@@ -5,18 +5,13 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.Json;
-import io.vertx.ext.auth.User;
-import com.github.phiz71.vertx.swagger.router.SwaggerRouter;
 
 import io.swagger.server.api.model.InlineResponseDefault;
 import java.time.Instant;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.swagger.server.api.MainApiException;
-import io.swagger.server.api.MainApiHeader;
+import java.util.List;
 import io.swagger.server.api.model.ModelUser;
-import io.swagger.server.api.util.ResourceResponse;
-import io.swagger.server.api.util.VerticleHelper;
 
 public class UserApiVerticle extends AbstractVerticle {
     private VerticleHelper verticleHelper = new VerticleHelper(this.getClass());
@@ -118,7 +113,7 @@ public class UserApiVerticle extends AbstractVerticle {
     //Handler for uuid
     final Handler<Message<JsonObject>> uuidHandler = message -> {
         try {
-            String uuidParam = message.body().getString("uuidParam");
+            String uuidParam = new String(message.body().getJsonObject("uuidParam"));
             service.uuid(uuidParam, verticleHelper.getAsyncResultHandler(message, UUID_SERVICE_ID, true, new TypeReference<InlineResponseDefault>(){}));
 
         } catch (Exception e) {

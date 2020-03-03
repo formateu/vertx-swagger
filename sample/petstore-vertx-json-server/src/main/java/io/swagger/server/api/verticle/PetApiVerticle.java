@@ -8,15 +8,11 @@ import io.vertx.core.json.Json;
 import io.vertx.ext.auth.User;
 import com.github.phiz71.vertx.swagger.router.SwaggerRouter;
 
-import java.io.File;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.swagger.server.api.MainApiException;
-import io.swagger.server.api.MainApiHeader;
+import java.util.List;
 import io.swagger.server.api.model.ModelApiResponse;
 import io.swagger.server.api.model.Pet;
-import io.swagger.server.api.util.ResourceResponse;
-import io.swagger.server.api.util.VerticleHelper;
 
 public class PetApiVerticle extends AbstractVerticle {
     private VerticleHelper verticleHelper = new VerticleHelper(this.getClass());
@@ -119,7 +115,7 @@ public class PetApiVerticle extends AbstractVerticle {
             User user = SwaggerRouter.extractAuthUserFromMessage(message);
             Long petId = Json.mapper.readValue(message.body().getString("petId"), Long.class);
             String additionalMetadata = message.body().getString("additionalMetadata");
-            File file = new File(message.body().getString("file"));
+            com.github.phiz71.vertx.swagger.router.UploadedFile file = new com.github.phiz71.vertx.swagger.router.UploadedFile(message.body().getString("file"));
             service.uploadFile(petId, additionalMetadata, file, user, verticleHelper.getAsyncResultHandler(message, UPLOADFILE_SERVICE_ID, true, new TypeReference<ModelApiResponse>(){}));
 
         } catch (Exception e) {

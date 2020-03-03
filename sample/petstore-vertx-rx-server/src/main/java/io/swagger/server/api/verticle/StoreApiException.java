@@ -1,30 +1,73 @@
 package io.swagger.server.api.verticle;
 
-import io.swagger.server.api.MainApiException;
-import io.swagger.server.api.MainApiHeader;
-import io.swagger.server.api.model.Order;
-import io.swagger.server.api.util.ResourceResponse;
-import io.swagger.server.api.util.VerticleHelper;
+import com.github.phiz71.vertx.swagger.router.ApiException;
 
-public final class StoreApiException extends MainApiException {
+public class StoreApiException extends ApiException {
+
+	private static final long serialVersionUID = 1L;
+
     public StoreApiException(int statusCode, String statusMessage) {
         super(statusCode, statusMessage);
     }
     
-    public static StoreApiException StoreApi_deleteOrder_400_createException() {
-        return new StoreApiException(400, "Invalid ID supplied");
+    public StoreApiException(int statusCode, String statusMessage, Throwable cause) {
+        super(statusCode, statusMessage, cause);
     }
-    public static StoreApiException StoreApi_deleteOrder_404_createException() {
-        return new StoreApiException(404, "Order not found");
+    
+    public static class DeleteOrder400Exception extends StoreApiException {
+        private static final long serialVersionUID = 1L;
+        
+        public DeleteOrder400Exception() {
+        	super(400, "Invalid ID supplied");
+        }
+        
+        public DeleteOrder400Exception(Throwable cause) {
+        	super(400, "Invalid ID supplied", cause);
+        }
     }
-    public static StoreApiException StoreApi_getOrderById_400_createException() {
-        return new StoreApiException(400, "Invalid ID supplied");
+    public static class DeleteOrder404Exception extends StoreApiException {
+        private static final long serialVersionUID = 1L;
+        
+        public DeleteOrder404Exception() {
+        	super(404, "Order not found");
+        }
+        
+        public DeleteOrder404Exception(Throwable cause) {
+        	super(404, "Order not found", cause);
+        }
     }
-    public static StoreApiException StoreApi_getOrderById_404_createException() {
-        return new StoreApiException(404, "Order not found");
+    public static class GetOrderById400Exception extends StoreApiException {
+        private static final long serialVersionUID = 1L;
+        
+        public GetOrderById400Exception() {
+        	super(400, "Invalid ID supplied");
+        }
+        
+        public GetOrderById400Exception(Throwable cause) {
+        	super(400, "Invalid ID supplied", cause);
+        }
     }
-    public static StoreApiException StoreApi_placeOrder_400_createException() {
-        return new StoreApiException(400, "Invalid Order");
+    public static class GetOrderById404Exception extends StoreApiException {
+        private static final long serialVersionUID = 1L;
+        
+        public GetOrderById404Exception() {
+        	super(404, "Order not found");
+        }
+        
+        public GetOrderById404Exception(Throwable cause) {
+        	super(404, "Order not found", cause);
+        }
+    }
+    public static class PlaceOrder400Exception extends StoreApiException {
+        private static final long serialVersionUID = 1L;
+        
+        public PlaceOrder400Exception() {
+        	super(400, "Invalid Order");
+        }
+        
+        public PlaceOrder400Exception(Throwable cause) {
+        	super(400, "Invalid Order", cause);
+        }
     }
     
 

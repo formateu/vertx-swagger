@@ -6,18 +6,18 @@ import java.util.Objects;
 import java.util.UUID;
 
 @JsonInclude(JsonInclude.Include.NON_NULL) 
-public class InlineResponseDefault   {
+public class InlineResponseDefault {
   
   private UUID uuid = null;
 
   public InlineResponseDefault () {
 
   }
-
+  
   public InlineResponseDefault (UUID uuid) {
     this.uuid = uuid;
   }
-
+  
     
   @JsonProperty("uuid")
   public UUID getUuid() {

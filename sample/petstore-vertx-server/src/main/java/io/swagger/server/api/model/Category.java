@@ -8,7 +8,7 @@ import java.util.Objects;
  * some description
  **/
 @JsonInclude(JsonInclude.Include.NON_NULL) 
-public class Category   {
+public class Category {
   
   private Long id = null;
   private String name = null;
@@ -16,12 +16,12 @@ public class Category   {
   public Category () {
 
   }
-
+  
   public Category (Long id, String name) {
     this.id = id;
     this.name = name;
   }
-
+  
     
   @JsonProperty("id")
   public Long getId() {

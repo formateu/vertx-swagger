@@ -103,7 +103,7 @@ public class Order extends JsonObject {
   }
 
   @JsonProperty("complete")
-  public Boolean getComplete(){
+  public Boolean Complete(){
     return this.getBoolean(COMPLETE_KEY);
   }
 

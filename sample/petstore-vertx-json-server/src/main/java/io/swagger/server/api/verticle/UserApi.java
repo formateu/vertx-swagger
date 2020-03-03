@@ -4,11 +4,8 @@ import io.swagger.server.api.model.InlineResponseDefault;
 import java.time.Instant;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.swagger.server.api.MainApiException;
-import io.swagger.server.api.MainApiHeader;
+import java.util.List;
 import io.swagger.server.api.model.ModelUser;
-import io.swagger.server.api.util.ResourceResponse;
-import io.swagger.server.api.util.VerticleHelper;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;

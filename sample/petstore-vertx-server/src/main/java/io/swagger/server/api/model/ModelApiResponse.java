@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL) 
-public class ModelApiResponse   {
+public class ModelApiResponse {
   
   private Integer code = null;
   private String type = null;
@@ -14,13 +14,13 @@ public class ModelApiResponse   {
   public ModelApiResponse () {
 
   }
-
+  
   public ModelApiResponse (Integer code, String type, String message) {
     this.code = code;
     this.type = type;
     this.message = message;
   }
-
+  
     
   @JsonProperty("code")
   public Integer getCode() {

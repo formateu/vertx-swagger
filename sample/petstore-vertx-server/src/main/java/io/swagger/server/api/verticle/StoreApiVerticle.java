@@ -1,52 +1,48 @@
 package io.swagger.server.api.verticle;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
-import io.vertx.core.json.Json;
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.User;
 import com.github.phiz71.vertx.swagger.router.SwaggerRouter;
 
-import io.swagger.server.api.MainApiException;
-import io.swagger.server.api.MainApiHeader;
-import io.swagger.server.api.model.Order;
-import io.swagger.server.api.util.ResourceResponse;
-import io.swagger.server.api.util.VerticleHelper;
-
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import io.swagger.server.api.model.Order;
+
+import io.swagger.server.api.util.VerticleHelper;
 
 public class StoreApiVerticle extends AbstractVerticle {
     private VerticleHelper verticleHelper = new VerticleHelper(this.getClass());
 
-    private static final String DELETEORDER_SERVICE_ID = "deleteOrder";
-    private static final String GETINVENTORY_SERVICE_ID = "getInventory";
-    private static final String GETORDERBYID_SERVICE_ID = "getOrderById";
-    private static final String PLACEORDER_SERVICE_ID = "placeOrder";
+    public static final String DELETEORDER_SERVICE_ID = "deleteOrder";
+    public static final String GETINVENTORY_SERVICE_ID = "getInventory";
+    public static final String GETORDERBYID_SERVICE_ID = "getOrderById";
+    public static final String PLACEORDER_SERVICE_ID = "placeOrder";
     
 
-    private StoreApi service = createServiceImplementation();
+    private StoreApi service;
 
     //Handler for deleteOrder
-    final Handler<Message<JsonObject>> deleteOrderHandler = message -> {
+    final Handler<Message<io.vertx.core.json.JsonObject>> deleteOrderHandler = message -> {
         try {
-            Long orderId = Json.mapper.readValue(message.body().getString("orderId"), Long.class);
+            Long orderId = io.vertx.core.json.Json.mapper.readValue(
+            						message.body().getString("orderId"), Long.class);
             service.deleteOrder(orderId, verticleHelper.getAsyncResultHandler(message, DELETEORDER_SERVICE_ID, false, new TypeReference<Void>(){}));
 
+    	} catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+    		verticleHelper.manageError(message, new StoreApiException.DeleteOrder400Exception(e), DELETEORDER_SERVICE_ID);
         } catch (Exception e) {
             verticleHelper.manageError(message, e, DELETEORDER_SERVICE_ID);
         }
     };
 
     //Handler for getInventory
-    final Handler<Message<JsonObject>> getInventoryHandler = message -> {
+    final Handler<Message<io.vertx.core.json.JsonObject>> getInventoryHandler = message -> {
         try {
             User user = SwaggerRouter.extractAuthUserFromMessage(message);
-            service.getInventory(user, verticleHelper.getAsyncResultHandler(message, GETINVENTORY_SERVICE_ID, true, new TypeReference<Map<String, Integer>>(){}));
+            service.getInventory(user, verticleHelper.getAsyncResultHandler(message, GETINVENTORY_SERVICE_ID, false, new TypeReference<Map<String, Integer>>(){}));
 
         } catch (Exception e) {
             verticleHelper.manageError(message, e, GETINVENTORY_SERVICE_ID);
@@ -54,22 +50,28 @@ public class StoreApiVerticle extends AbstractVerticle {
     };
 
     //Handler for getOrderById
-    final Handler<Message<JsonObject>> getOrderByIdHandler = message -> {
+    final Handler<Message<io.vertx.core.json.JsonObject>> getOrderByIdHandler = message -> {
         try {
-            Long orderId = Json.mapper.readValue(message.body().getString("OrderId"), Long.class);
+            Long orderId = io.vertx.core.json.Json.mapper.readValue(
+            						message.body().getString("OrderId"), Long.class);
             service.getOrderById(orderId, verticleHelper.getAsyncResultHandler(message, GETORDERBYID_SERVICE_ID, true, new TypeReference<Order>(){}));
 
+    	} catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+    		verticleHelper.manageError(message, new StoreApiException.GetOrderById400Exception(e), GETORDERBYID_SERVICE_ID);
         } catch (Exception e) {
             verticleHelper.manageError(message, e, GETORDERBYID_SERVICE_ID);
         }
     };
 
     //Handler for placeOrder
-    final Handler<Message<JsonObject>> placeOrderHandler = message -> {
+    final Handler<Message<io.vertx.core.json.JsonObject>> placeOrderHandler = message -> {
         try {
-            Order body = Json.mapper.readValue(message.body().getJsonObject("body").encode(), Order.class);
+            Order body = io.vertx.core.json.Json.mapper.readValue(
+            						message.body().getJsonObject("body").encode(), Order.class);
             service.placeOrder(body, verticleHelper.getAsyncResultHandler(message, PLACEORDER_SERVICE_ID, true, new TypeReference<Order>(){}));
 
+    	} catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+    		verticleHelper.manageError(message, new StoreApiException.PlaceOrder400Exception(e), PLACEORDER_SERVICE_ID);
         } catch (Exception e) {
             verticleHelper.manageError(message, e, PLACEORDER_SERVICE_ID);
         }
@@ -79,14 +81,15 @@ public class StoreApiVerticle extends AbstractVerticle {
 
     @Override
     public void start() throws Exception {
-        vertx.eventBus().<JsonObject> consumer(DELETEORDER_SERVICE_ID).handler(deleteOrderHandler);
-        vertx.eventBus().<JsonObject> consumer(GETINVENTORY_SERVICE_ID).handler(getInventoryHandler);
-        vertx.eventBus().<JsonObject> consumer(GETORDERBYID_SERVICE_ID).handler(getOrderByIdHandler);
-        vertx.eventBus().<JsonObject> consumer(PLACEORDER_SERVICE_ID).handler(placeOrderHandler);
+        service = createServiceImplementation();
+        vertx.eventBus().<io.vertx.core.json.JsonObject> consumer(DELETEORDER_SERVICE_ID).handler(deleteOrderHandler);
+        vertx.eventBus().<io.vertx.core.json.JsonObject> consumer(GETINVENTORY_SERVICE_ID).handler(getInventoryHandler);
+        vertx.eventBus().<io.vertx.core.json.JsonObject> consumer(GETORDERBYID_SERVICE_ID).handler(getOrderByIdHandler);
+        vertx.eventBus().<io.vertx.core.json.JsonObject> consumer(PLACEORDER_SERVICE_ID).handler(placeOrderHandler);
         
     }
 
     protected StoreApi createServiceImplementation() {
-        return new StoreApiImpl(vertx);
+        return new StoreApiImpl(vertx, config());
     }
 }

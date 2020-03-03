@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL) 
-public class Tag   {
+public class Tag {
   
   private Long id = null;
   private String name = null;
@@ -13,12 +13,12 @@ public class Tag   {
   public Tag () {
 
   }
-
+  
   public Tag (Long id, String name) {
     this.id = id;
     this.name = name;
   }
-
+  
     
   @JsonProperty("id")
   public Long getId() {

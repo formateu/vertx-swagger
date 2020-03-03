@@ -1,16 +1,9 @@
 package io.swagger.server.api.verticle;
 
-import io.swagger.server.api.model.InlineResponseDefault;
-import java.time.Instant;
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
-import io.swagger.server.api.MainApiException;
-import io.swagger.server.api.MainApiHeader;
-import io.swagger.server.api.model.ModelUser;
-import io.swagger.server.api.util.ResourceResponse;
-import io.swagger.server.api.util.VerticleHelper;
+import com.github.phiz71.vertx.swagger.router.ApiHeader;
 
-public final class UserApiHeader extends MainApiHeader {
+
+public final class UserApiHeader extends ApiHeader {
     private UserApiHeader(String name, String value) {
         super(name, value);
     }

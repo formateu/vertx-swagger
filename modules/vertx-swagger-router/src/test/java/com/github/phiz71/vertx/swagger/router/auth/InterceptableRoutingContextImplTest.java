@@ -1,5 +1,20 @@
 package com.github.phiz71.vertx.swagger.router.auth;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLSession;
+import javax.security.cert.X509Certificate;
+
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import io.vertx.codegen.annotations.Nullable;
+import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
@@ -12,27 +27,22 @@ import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.http.HttpVersion;
 import io.vertx.core.http.ServerWebSocket;
+import io.vertx.core.http.StreamPriority;
+import io.vertx.core.http.impl.HttpUtils;
+import io.vertx.core.http.impl.ServerCookie;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.net.NetSocket;
 import io.vertx.core.net.SocketAddress;
 import io.vertx.ext.web.Cookie;
+import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.Session;
+import io.vertx.ext.web.impl.RouteImpl;
 import io.vertx.ext.web.impl.RouterImpl;
 import io.vertx.ext.web.impl.RoutingContextImpl;
-import io.vertx.ext.web.impl.Utils;
-import io.vertx.ext.web.sstore.impl.SessionImpl;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import java.util.HashSet;
-
-import javax.net.ssl.SSLPeerUnverifiedException;
-import javax.net.ssl.SSLSession;
-import javax.security.cert.X509Certificate;
+import io.vertx.ext.web.sstore.impl.SharedDataSessionImpl;
 
 public class InterceptableRoutingContextImplTest {
 
@@ -47,7 +57,7 @@ public class InterceptableRoutingContextImplTest {
         mountPoint = "/dummy";
         myVertx = Vertx.vertx();
         router = (RouterImpl) Router.router(myVertx);
-        rc = new RoutingContextImpl(mountPoint, router, new TestHttpServerRequest(mountPoint, "fr"),
+        rc = new TestRoutingContext(mountPoint, router, new TestHttpServerRequest(mountPoint, "fr"),
                 new HashSet<>());
         contextToTest = new InterceptableRoutingContext(rc);
     }
@@ -140,22 +150,386 @@ public class InterceptableRoutingContextImplTest {
     @Test
     public void testOthers() {
         Assert.assertEquals(mountPoint, contextToTest.mountPoint());
-        Assert.assertEquals(Utils.normalizePath(mountPoint), contextToTest.normalisedPath());
+        Assert.assertEquals(HttpUtils.normalizePath(mountPoint), contextToTest.normalisedPath());
         Assert.assertEquals(null, contextToTest.currentRoute());
         Assert.assertEquals(-1, contextToTest.statusCode());
         Assert.assertEquals(null, contextToTest.failure());
         Assert.assertEquals(myVertx, contextToTest.vertx());
         Assert.assertEquals(false, contextToTest.failed());
 
-        Session sess = new SessionImpl();
+        Session sess = new SharedDataSessionImpl();
         contextToTest.setSession(sess);
         Assert.assertEquals(sess, contextToTest.session());
     }
 }
 
+
+class  TestRoutingContext extends RoutingContextImpl {
+
+	public TestRoutingContext(String mountPoint, RouterImpl router, HttpServerRequest request, Set<RouteImpl> routes) {
+		super(mountPoint, router, request, routes);
+	}
+	
+	@Override
+	public Route currentRoute() {
+		if (currentRoute == null) {
+			return null;
+		}
+		return super.currentRoute();
+	}
+	
+}
+
+class TestHttpServerResponse implements HttpServerResponse {
+
+	private Map<String, io.vertx.core.http.Cookie> cookies;
+	
+	public TestHttpServerResponse() {
+		this.cookies = new HashMap<>();
+	}
+	
+	@Override
+	public void end(Handler<AsyncResult<Void>> handler) {
+		// TODO Auto-generated method stub		
+	}
+
+	@Override
+	public boolean writeQueueFull() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public HttpServerResponse exceptionHandler(Handler<Throwable> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse write(Buffer data) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse write(Buffer data, Handler<AsyncResult<Void>> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse setWriteQueueMaxSize(int maxSize) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse drainHandler(Handler<Void> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getStatusCode() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public HttpServerResponse setStatusCode(int statusCode) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getStatusMessage() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse setStatusMessage(String statusMessage) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse setChunked(boolean chunked) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean isChunked() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public MultiMap headers() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse putHeader(String name, String value) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse putHeader(CharSequence name, CharSequence value) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse putHeader(String name, Iterable<String> values) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse putHeader(CharSequence name, Iterable<CharSequence> values) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public MultiMap trailers() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse putTrailer(String name, String value) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse putTrailer(CharSequence name, CharSequence value) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse putTrailer(String name, Iterable<String> values) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse putTrailer(CharSequence name, Iterable<CharSequence> value) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse closeHandler(@Nullable Handler<Void> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse endHandler(@Nullable Handler<Void> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse write(String chunk, String enc) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse write(String chunk, String enc, Handler<AsyncResult<Void>> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse write(String chunk) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse write(String chunk, Handler<AsyncResult<Void>> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse writeContinue() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void end(String chunk) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void end(String chunk, Handler<AsyncResult<Void>> handler) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void end(String chunk, String enc) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void end(String chunk, String enc, Handler<AsyncResult<Void>> handler) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void end(Buffer chunk) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void end(Buffer chunk, Handler<AsyncResult<Void>> handler) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void end() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public HttpServerResponse sendFile(String filename, long offset, long length) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse sendFile(String filename, long offset, long length,
+			Handler<AsyncResult<Void>> resultHandler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void close() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean ended() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean closed() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean headWritten() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public HttpServerResponse headersEndHandler(@Nullable Handler<Void> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse bodyEndHandler(@Nullable Handler<Void> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public long bytesWritten() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int streamId() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public HttpServerResponse push(HttpMethod method, String host, String path,
+			Handler<AsyncResult<HttpServerResponse>> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse push(HttpMethod method, String path, MultiMap headers,
+			Handler<AsyncResult<HttpServerResponse>> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse push(HttpMethod method, String path, Handler<AsyncResult<HttpServerResponse>> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse push(HttpMethod method, String host, String path, MultiMap headers,
+			Handler<AsyncResult<HttpServerResponse>> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void reset(long code) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public HttpServerResponse writeCustomFrame(int type, int flags, Buffer payload) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse addCookie(io.vertx.core.http.Cookie cookie) {
+		cookies.put(cookie.getName(), (ServerCookie) cookie);
+		return this;
+	}
+
+	@Override
+	public io.vertx.core.http.@Nullable Cookie removeCookie(String name, boolean invalidate) {
+		return cookies.remove(name);
+	}
+	
+	public Map<String, io.vertx.core.http.Cookie> getCookies() {
+		return cookies;
+	}
+	
+}
+
 class TestHttpServerRequest implements HttpServerRequest {
 
     MultiMap headers = MultiMap.caseInsensitiveMultiMap();
+    TestHttpServerResponse response = new TestHttpServerResponse();
     String mountPoint;
 
     public TestHttpServerRequest(String mountPoint, String acceptLanguage) {
@@ -249,8 +623,7 @@ class TestHttpServerRequest implements HttpServerRequest {
 
     @Override
     public HttpServerResponse response() {
-        // TODO Auto-generated method stub
-        return null;
+    	return response;
     }
 
     @Override
@@ -368,6 +741,39 @@ class TestHttpServerRequest implements HttpServerRequest {
 	public SSLSession sslSession() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public HttpServerRequest fetch(long amount) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public long bytesRead() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public HttpServerRequest streamPriorityHandler(Handler<StreamPriority> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public io.vertx.core.http.@Nullable Cookie getCookie(String name) {
+		return cookieMap().get(name);
+	}
+
+	@Override
+	public int cookieCount() {
+		return cookieMap().size();
+	}
+
+	@Override
+	public Map<String, io.vertx.core.http.Cookie> cookieMap() {
+		return response.getCookies();
 	}
 
 }

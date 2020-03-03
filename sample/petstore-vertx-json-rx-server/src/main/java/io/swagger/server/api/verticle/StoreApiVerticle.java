@@ -10,11 +10,7 @@ import com.github.phiz71.vertx.swagger.router.SwaggerRouter;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.swagger.server.api.MainApiException;
-import io.swagger.server.api.MainApiHeader;
 import io.swagger.server.api.model.Order;
-import io.swagger.server.api.util.ResourceResponse;
-import io.swagger.server.api.util.VerticleHelper;
 
 public class StoreApiVerticle extends AbstractVerticle {
     private VerticleHelper verticleHelper = new VerticleHelper(this.getClass());
@@ -32,7 +28,7 @@ public class StoreApiVerticle extends AbstractVerticle {
         try {
             Long orderId = Json.mapper.readValue(message.body().getString("orderId"), Long.class);
                 service.deleteOrder(orderId).subscribe(
-                    verticleHelper.getRxResultHandler(message, false, new TypeReference<Void>(){}),
+                    verticleHelper.getRxResultHandler(message),
                     verticleHelper.getErrorAction(message, DELETEORDER_SERVICE_ID)
                 );
         } catch (Exception e) {
@@ -44,7 +40,7 @@ public class StoreApiVerticle extends AbstractVerticle {
         try {
             User user = SwaggerRouter.extractAuthUserFromMessage(message);
                 service.getInventory(io.vertx.rxjava.ext.auth.User.newInstance(user)).subscribe(
-                    verticleHelper.getRxResultHandler(message, true, new TypeReference<JsonObject>(){}),
+                    verticleHelper.getRxResultHandler(message),
                     verticleHelper.getErrorAction(message, GETINVENTORY_SERVICE_ID)
                 );
         } catch (Exception e) {
@@ -56,7 +52,7 @@ public class StoreApiVerticle extends AbstractVerticle {
         try {
             Long orderId = Json.mapper.readValue(message.body().getString("OrderId"), Long.class);
                 service.getOrderById(orderId).subscribe(
-                    verticleHelper.getRxResultHandler(message, true, new TypeReference<Order>(){}),
+                    verticleHelper.getRxResultHandler(message),
                     verticleHelper.getErrorAction(message, GETORDERBYID_SERVICE_ID)
                 );
         } catch (Exception e) {
@@ -68,7 +64,7 @@ public class StoreApiVerticle extends AbstractVerticle {
         try {
             Order body = new Order(message.body().getJsonObject("body"));
                 service.placeOrder(body).subscribe(
-                    verticleHelper.getRxResultHandler(message, true, new TypeReference<Order>(){}),
+                    verticleHelper.getRxResultHandler(message),
                     verticleHelper.getErrorAction(message, PLACEORDER_SERVICE_ID)
                 );
         } catch (Exception e) {

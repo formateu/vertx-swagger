@@ -1,47 +1,106 @@
 package io.swagger.server.api.verticle;
 
 import io.swagger.server.api.model.InlineResponseDefault;
-import io.swagger.server.api.MainApiException;
-import io.swagger.server.api.MainApiHeader;
+import java.util.List;
 import io.swagger.server.api.model.ModelUser;
 import java.time.OffsetDateTime;
-import io.swagger.server.api.util.ResourceResponse;
 import java.util.UUID;
-import io.swagger.server.api.util.VerticleHelper;
+
+import io.swagger.server.api.util.ResourceResponse;
+
+import static io.swagger.server.api.util.ResourceResponseRxWrapper.emptyHeaderWrapper;
 
 import io.reactivex.Single;
-import io.reactivex.Completable;
-import io.vertx.rxjava.ext.auth.User;
-
-import java.util.List;
-import java.util.Map;
 
 public interface UserApi  {
     //createUser
-    Single<ResourceResponse<Void>> createUser(ModelUser body);
+    default Single<ResourceResponse<Void>> createUserWithHeader(ModelUser body) { 
+    	return createUser(body).compose(emptyHeaderWrapper()); 
+    }
+    
+    default Single<Void> createUser(ModelUser body) { 
+    	return Single.error(new UnsupportedOperationException("Not implemented"));
+    }
+
     
     //createUsersWithArrayInput
-    Single<ResourceResponse<Void>> createUsersWithArrayInput(List<ModelUser> body);
+    default Single<ResourceResponse<Void>> createUsersWithArrayInputWithHeader(List<ModelUser> body) { 
+    	return createUsersWithArrayInput(body).compose(emptyHeaderWrapper()); 
+    }
+    
+    default Single<Void> createUsersWithArrayInput(List<ModelUser> body) { 
+    	return Single.error(new UnsupportedOperationException("Not implemented"));
+    }
+
     
     //createUsersWithListInput
-    Single<ResourceResponse<Void>> createUsersWithListInput(List<ModelUser> body);
+    default Single<ResourceResponse<Void>> createUsersWithListInputWithHeader(List<ModelUser> body) { 
+    	return createUsersWithListInput(body).compose(emptyHeaderWrapper()); 
+    }
+    
+    default Single<Void> createUsersWithListInput(List<ModelUser> body) { 
+    	return Single.error(new UnsupportedOperationException("Not implemented"));
+    }
+
     
     //deleteUser
-    Single<ResourceResponse<Void>> deleteUser(String username);
+    default Single<ResourceResponse<Void>> deleteUserWithHeader(String username) { 
+    	return deleteUser(username).compose(emptyHeaderWrapper()); 
+    }
+    
+    default Single<Void> deleteUser(String username) { 
+    	return Single.error(new UnsupportedOperationException("Not implemented"));
+    }
+
     
     //getUserByName
-    Single<ResourceResponse<ModelUser>> getUserByName(String username);
+    default Single<ResourceResponse<ModelUser>> getUserByNameWithHeader(String username) { 
+    	return getUserByName(username).compose(emptyHeaderWrapper()); 
+    }
+    
+    default Single<ModelUser> getUserByName(String username) { 
+    	return Single.error(new UnsupportedOperationException("Not implemented"));
+    }
+
     
     //loginUser
-    Single<ResourceResponse<String>> loginUser(String username, String password);
+    default Single<ResourceResponse<String>> loginUserWithHeader(String username, String password) { 
+    	return loginUser(username, password).compose(emptyHeaderWrapper()); 
+    }
+    
+    default Single<String> loginUser(String username, String password) { 
+    	return Single.error(new UnsupportedOperationException("Not implemented"));
+    }
+
     
     //logoutUser
-    Single<ResourceResponse<Void>> logoutUser();
+    default Single<ResourceResponse<Void>> logoutUserWithHeader() { 
+    	return logoutUser().compose(emptyHeaderWrapper()); 
+    }
+    
+    default Single<Void> logoutUser() { 
+    	return Single.error(new UnsupportedOperationException("Not implemented"));
+    }
+
     
     //updateUser
-    Single<ResourceResponse<Void>> updateUser(String username, ModelUser body);
+    default Single<ResourceResponse<Void>> updateUserWithHeader(String username, ModelUser body) { 
+    	return updateUser(username, body).compose(emptyHeaderWrapper()); 
+    }
+    
+    default Single<Void> updateUser(String username, ModelUser body) { 
+    	return Single.error(new UnsupportedOperationException("Not implemented"));
+    }
+
     
     //uuid
-    Single<ResourceResponse<InlineResponseDefault>> uuid(UUID uuidParam);
+    default Single<ResourceResponse<InlineResponseDefault>> uuidWithHeader(UUID uuidParam) { 
+    	return uuid(uuidParam).compose(emptyHeaderWrapper()); 
+    }
+    
+    default Single<InlineResponseDefault> uuid(UUID uuidParam) { 
+    	return Single.error(new UnsupportedOperationException("Not implemented"));
+    }
+
     
 }

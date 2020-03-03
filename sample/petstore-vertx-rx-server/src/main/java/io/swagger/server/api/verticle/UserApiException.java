@@ -1,39 +1,95 @@
 package io.swagger.server.api.verticle;
 
-import io.swagger.server.api.model.InlineResponseDefault;
-import io.swagger.server.api.MainApiException;
-import io.swagger.server.api.MainApiHeader;
-import io.swagger.server.api.model.ModelUser;
-import java.time.OffsetDateTime;
-import io.swagger.server.api.util.ResourceResponse;
-import java.util.UUID;
-import io.swagger.server.api.util.VerticleHelper;
+import com.github.phiz71.vertx.swagger.router.ApiException;
 
-public final class UserApiException extends MainApiException {
+public class UserApiException extends ApiException {
+
+	private static final long serialVersionUID = 1L;
+
     public UserApiException(int statusCode, String statusMessage) {
         super(statusCode, statusMessage);
     }
     
-    public static UserApiException UserApi_deleteUser_400_createException() {
-        return new UserApiException(400, "Invalid username supplied");
+    public UserApiException(int statusCode, String statusMessage, Throwable cause) {
+        super(statusCode, statusMessage, cause);
     }
-    public static UserApiException UserApi_deleteUser_404_createException() {
-        return new UserApiException(404, "User not found");
+    
+    public static class DeleteUser400Exception extends UserApiException {
+        private static final long serialVersionUID = 1L;
+        
+        public DeleteUser400Exception() {
+        	super(400, "Invalid username supplied");
+        }
+        
+        public DeleteUser400Exception(Throwable cause) {
+        	super(400, "Invalid username supplied", cause);
+        }
     }
-    public static UserApiException UserApi_getUserByName_400_createException() {
-        return new UserApiException(400, "Invalid username supplied");
+    public static class DeleteUser404Exception extends UserApiException {
+        private static final long serialVersionUID = 1L;
+        
+        public DeleteUser404Exception() {
+        	super(404, "User not found");
+        }
+        
+        public DeleteUser404Exception(Throwable cause) {
+        	super(404, "User not found", cause);
+        }
     }
-    public static UserApiException UserApi_getUserByName_404_createException() {
-        return new UserApiException(404, "User not found");
+    public static class GetUserByName400Exception extends UserApiException {
+        private static final long serialVersionUID = 1L;
+        
+        public GetUserByName400Exception() {
+        	super(400, "Invalid username supplied");
+        }
+        
+        public GetUserByName400Exception(Throwable cause) {
+        	super(400, "Invalid username supplied", cause);
+        }
     }
-    public static UserApiException UserApi_loginUser_400_createException() {
-        return new UserApiException(400, "Invalid username/password supplied");
+    public static class GetUserByName404Exception extends UserApiException {
+        private static final long serialVersionUID = 1L;
+        
+        public GetUserByName404Exception() {
+        	super(404, "User not found");
+        }
+        
+        public GetUserByName404Exception(Throwable cause) {
+        	super(404, "User not found", cause);
+        }
     }
-    public static UserApiException UserApi_updateUser_400_createException() {
-        return new UserApiException(400, "Invalid user supplied");
+    public static class LoginUser400Exception extends UserApiException {
+        private static final long serialVersionUID = 1L;
+        
+        public LoginUser400Exception() {
+        	super(400, "Invalid username/password supplied");
+        }
+        
+        public LoginUser400Exception(Throwable cause) {
+        	super(400, "Invalid username/password supplied", cause);
+        }
     }
-    public static UserApiException UserApi_updateUser_404_createException() {
-        return new UserApiException(404, "User not found");
+    public static class UpdateUser400Exception extends UserApiException {
+        private static final long serialVersionUID = 1L;
+        
+        public UpdateUser400Exception() {
+        	super(400, "Invalid user supplied");
+        }
+        
+        public UpdateUser400Exception(Throwable cause) {
+        	super(400, "Invalid user supplied", cause);
+        }
+    }
+    public static class UpdateUser404Exception extends UserApiException {
+        private static final long serialVersionUID = 1L;
+        
+        public UpdateUser404Exception() {
+        	super(404, "User not found");
+        }
+        
+        public UpdateUser404Exception(Throwable cause) {
+        	super(404, "User not found", cause);
+        }
     }
     
 

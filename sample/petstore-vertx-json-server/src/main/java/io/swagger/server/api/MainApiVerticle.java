@@ -3,13 +3,11 @@ package io.swagger.server.api;
 import java.nio.charset.Charset;
 
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.github.phiz71.vertx.swagger.router.OperationIdServiceIdResolver;
 import com.github.phiz71.vertx.swagger.router.SwaggerRouter;
 
-import io.swagger.models.Swagger;
-import io.swagger.parser.SwaggerParser;
-import io.swagger.server.api.util.SwaggerManager;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.CompositeFuture;
+import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
 import io.vertx.core.file.FileSystem;
 import io.vertx.core.json.Json;
@@ -20,58 +18,60 @@ import io.vertx.ext.web.Router;
 public class MainApiVerticle extends AbstractVerticle {
     private static final Logger LOGGER = LoggerFactory.getLogger(MainApiVerticle.class);
     
-    private final Router router = Router.router(vertx);
+    private static final Class<?>[] verticlesToDeploy = {
+    	io.swagger.server.api.verticle.PetApiVerticle.class,
+    	io.swagger.server.api.verticle.StoreApiVerticle.class,
+    	io.swagger.server.api.verticle.UserApiVerticle.class
+    };
     
     @Override
     public void start(Future<Void> startFuture) throws Exception {
+    	LOGGER.info("Starting MainApiVerticle...");
         Json.mapper.registerModule(new JavaTimeModule());
     	FileSystem vertxFileSystem = vertx.fileSystem();
         vertxFileSystem.readFile("swagger.json", readFile -> {
             if (readFile.succeeded()) {
-                Swagger swagger = new SwaggerParser().parse(readFile.result().toString(Charset.forName("utf-8")));
-                SwaggerManager.getInstance().setSwagger(swagger);
-                Router swaggerRouter = SwaggerRouter.swaggerRouter(Router.router(vertx), swagger, vertx.eventBus(), new OperationIdServiceIdResolver());
+                Router swaggerRouter = SwaggerRouter.createRouter(vertx, readFile.result().toString(Charset.forName("utf-8")));
             
                 deployVerticles(startFuture);
 
                 vertx.createHttpServer() 
                     .requestHandler(swaggerRouter::accept) 
                     .listen(config().getInteger("http.port", 8080));
-                startFuture.complete();
             } else {
             	startFuture.fail(readFile.cause());
             }
         });        		        
     }
-      
-    public void deployVerticles(Future<Void> startFuture) {
-        
-        vertx.deployVerticle("io.swagger.server.api.verticle.PetApiVerticle", res -> {
-            if (res.succeeded()) {
-                LOGGER.info("PetApiVerticle : Deployed");
-            } else {
-                startFuture.fail(res.cause());
-                LOGGER.error("PetApiVerticle : Deployement failed");
-            }
-        });
-        
-        vertx.deployVerticle("io.swagger.server.api.verticle.StoreApiVerticle", res -> {
-            if (res.succeeded()) {
-                LOGGER.info("StoreApiVerticle : Deployed");
-            } else {
-                startFuture.fail(res.cause());
-                LOGGER.error("StoreApiVerticle : Deployement failed");
-            }
-        });
-        
-        vertx.deployVerticle("io.swagger.server.api.verticle.UserApiVerticle", res -> {
-            if (res.succeeded()) {
-                LOGGER.info("UserApiVerticle : Deployed");
-            } else {
-                startFuture.fail(res.cause());
-                LOGGER.error("UserApiVerticle : Deployement failed");
-            }
-        });
-        
+    
+	@Override
+    public void stop() {
+    	LOGGER.info("Stopping MainApiVerticle");
     }
+    
+    public void deployVerticles(Future<Void> startFuture) {
+		Future<CompositeFuture> compositeFuture = Future.succeededFuture();
+		for (Class<?> clazz : verticlesToDeploy) {
+			Future<Void> future = Future.future();
+			compositeFuture = CompositeFuture.all(future, compositeFuture);
+			vertx.deployVerticle(clazz.getName(), new DeploymentOptions().setConfig(config()), res -> {
+				if (res.succeeded()) {
+					future.complete();
+					LOGGER.info(String.format("%s (%s) deployed", clazz.getSimpleName(), res.result()));
+				} else {
+					future.fail(res.cause());
+					LOGGER.error(clazz.getSimpleName() + " - deployment failed");
+				}
+			});
+		}
+
+		compositeFuture.setHandler(res -> {
+			if (res.succeeded()) {
+				startFuture.complete();
+			} else {
+				startFuture.fail(res.cause());
+			}
+		});
+    }
+    
 }

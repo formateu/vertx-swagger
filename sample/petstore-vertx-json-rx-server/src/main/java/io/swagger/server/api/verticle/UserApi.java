@@ -4,11 +4,8 @@ import io.swagger.server.api.model.InlineResponseDefault;
 import java.time.Instant;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.swagger.server.api.MainApiException;
-import io.swagger.server.api.MainApiHeader;
+import java.util.List;
 import io.swagger.server.api.model.ModelUser;
-import io.swagger.server.api.util.ResourceResponse;
-import io.swagger.server.api.util.VerticleHelper;
 
 import rx.Completable;
 import rx.Single;
@@ -16,30 +13,93 @@ import io.vertx.rxjava.ext.auth.User;
 
 public interface UserApi  {
     //createUser
-    Single<ResourceResponse<Void>> createUser(ModelUser body);
+    default Single<ResourceResponse<Void>> createUserWithHeader(ModelUser body) { 
+    	return createUser(body).compose(emptyHeaderWrapper()); 
+    }
+    
+    default Single<Void> createUser(ModelUser body) { 
+    	return Single.error(new UnsupportedOperationException("Not implemented"));
+    }
+
     
     //createUsersWithArrayInput
-    Single<ResourceResponse<Void>> createUsersWithArrayInput(JsonArray body);
+    default Single<ResourceResponse<Void>> createUsersWithArrayInputWithHeader(JsonArray body) { 
+    	return createUsersWithArrayInput(body).compose(emptyHeaderWrapper()); 
+    }
+    
+    default Single<Void> createUsersWithArrayInput(JsonArray body) { 
+    	return Single.error(new UnsupportedOperationException("Not implemented"));
+    }
+
     
     //createUsersWithListInput
-    Single<ResourceResponse<Void>> createUsersWithListInput(JsonArray body);
+    default Single<ResourceResponse<Void>> createUsersWithListInputWithHeader(JsonArray body) { 
+    	return createUsersWithListInput(body).compose(emptyHeaderWrapper()); 
+    }
+    
+    default Single<Void> createUsersWithListInput(JsonArray body) { 
+    	return Single.error(new UnsupportedOperationException("Not implemented"));
+    }
+
     
     //deleteUser
-    Single<ResourceResponse<Void>> deleteUser(String username);
+    default Single<ResourceResponse<Void>> deleteUserWithHeader(String username) { 
+    	return deleteUser(username).compose(emptyHeaderWrapper()); 
+    }
+    
+    default Single<Void> deleteUser(String username) { 
+    	return Single.error(new UnsupportedOperationException("Not implemented"));
+    }
+
     
     //getUserByName
-    Single<ResourceResponse<ModelUser>> getUserByName(String username);
+    default Single<ResourceResponse<ModelUser>> getUserByNameWithHeader(String username) { 
+    	return getUserByName(username).compose(emptyHeaderWrapper()); 
+    }
+    
+    default Single<ModelUser> getUserByName(String username) { 
+    	return Single.error(new UnsupportedOperationException("Not implemented"));
+    }
+
     
     //loginUser
-    Single<ResourceResponse<String>> loginUser(String username, String password);
+    default Single<ResourceResponse<String>> loginUserWithHeader(String username, String password) { 
+    	return loginUser(username, password).compose(emptyHeaderWrapper()); 
+    }
+    
+    default Single<String> loginUser(String username, String password) { 
+    	return Single.error(new UnsupportedOperationException("Not implemented"));
+    }
+
     
     //logoutUser
-    Single<ResourceResponse<Void>> logoutUser();
+    default Single<ResourceResponse<Void>> logoutUserWithHeader() { 
+    	return logoutUser().compose(emptyHeaderWrapper()); 
+    }
+    
+    default Single<Void> logoutUser() { 
+    	return Single.error(new UnsupportedOperationException("Not implemented"));
+    }
+
     
     //updateUser
-    Single<ResourceResponse<Void>> updateUser(String username, ModelUser body);
+    default Single<ResourceResponse<Void>> updateUserWithHeader(String username, ModelUser body) { 
+    	return updateUser(username, body).compose(emptyHeaderWrapper()); 
+    }
+    
+    default Single<Void> updateUser(String username, ModelUser body) { 
+    	return Single.error(new UnsupportedOperationException("Not implemented"));
+    }
+
     
     //uuid
-    Single<ResourceResponse<InlineResponseDefault>> uuid(String uuidParam);
+    default Single<ResourceResponse<InlineResponseDefault>> uuidWithHeader(String uuidParam) { 
+    	return uuid(uuidParam).compose(emptyHeaderWrapper()); 
+    }
+    
+    default Single<InlineResponseDefault> uuid(String uuidParam) { 
+    	return Single.error(new UnsupportedOperationException("Not implemented"));
+    }
+
     
 }

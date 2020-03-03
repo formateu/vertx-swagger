@@ -1,20 +1,15 @@
 package io.swagger.server.api.verticle;
 
 import io.swagger.server.api.model.InlineResponseDefault;
-import io.swagger.server.api.MainApiException;
-import io.swagger.server.api.MainApiHeader;
+import java.util.List;
 import io.swagger.server.api.model.ModelUser;
 import java.time.OffsetDateTime;
-import io.swagger.server.api.util.ResourceResponse;
 import java.util.UUID;
-import io.swagger.server.api.util.VerticleHelper;
+
+import io.swagger.server.api.util.ResourceResponse;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
-import io.vertx.ext.auth.User;
-
-import java.util.List;
-import java.util.Map;
 
 public interface UserApi  {
     //createUser

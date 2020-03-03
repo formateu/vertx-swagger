@@ -7,7 +7,7 @@ import java.time.OffsetDateTime;
 import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL) 
-public class Order   {
+public class Order {
   
   private Long id = null;
   private Long petId = null;
@@ -39,7 +39,7 @@ public class Order   {
   public Order () {
 
   }
-
+  
   public Order (Long id, Long petId, Integer quantity, OffsetDateTime shipDate, StatusEnum status, Boolean complete) {
     this.id = id;
     this.petId = petId;
@@ -48,7 +48,7 @@ public class Order   {
     this.status = status;
     this.complete = complete;
   }
-
+  
     
   @JsonProperty("id")
   public Long getId() {
@@ -101,7 +101,7 @@ public class Order   {
 
     
   @JsonProperty("complete")
-  public Boolean getComplete() {
+  public Boolean Complete() {
     return complete;
   }
   public Order setComplete(Boolean complete) {

@@ -10,13 +10,13 @@ import java.util.List;
 import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL) 
-public class Pet   {
+public class Pet {
   
   private Long id = null;
   private Category category = null;
   private String name = null;
-  private List<String> photoUrls = new ArrayList<String>();
-  private List<Tag> tags = new ArrayList<Tag>();
+  private List<String> photoUrls = new ArrayList<>();
+  private List<Tag> tags = new ArrayList<>();
 
 
   public enum StatusEnum {
@@ -42,7 +42,7 @@ public class Pet   {
   public Pet () {
 
   }
-
+  
   public Pet (Long id, Category category, String name, List<String> photoUrls, List<Tag> tags, StatusEnum status) {
     this.id = id;
     this.category = category;
@@ -51,7 +51,7 @@ public class Pet   {
     this.tags = tags;
     this.status = status;
   }
-
+  
     
   @JsonProperty("id")
   public Long getId() {

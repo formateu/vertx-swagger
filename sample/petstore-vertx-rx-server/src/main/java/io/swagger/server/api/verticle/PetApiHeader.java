@@ -1,14 +1,9 @@
 package io.swagger.server.api.verticle;
 
-import java.io.File;
-import io.swagger.server.api.MainApiException;
-import io.swagger.server.api.MainApiHeader;
-import io.swagger.server.api.model.ModelApiResponse;
-import io.swagger.server.api.model.Pet;
-import io.swagger.server.api.util.ResourceResponse;
-import io.swagger.server.api.util.VerticleHelper;
+import com.github.phiz71.vertx.swagger.router.ApiHeader;
 
-public final class PetApiHeader extends MainApiHeader {
+
+public final class PetApiHeader extends ApiHeader {
     private PetApiHeader(String name, String value) {
         super(name, value);
     }

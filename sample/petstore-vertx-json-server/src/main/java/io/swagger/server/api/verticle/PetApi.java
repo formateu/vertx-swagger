@@ -1,14 +1,10 @@
 package io.swagger.server.api.verticle;
 
-import java.io.File;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.swagger.server.api.MainApiException;
-import io.swagger.server.api.MainApiHeader;
+import java.util.List;
 import io.swagger.server.api.model.ModelApiResponse;
 import io.swagger.server.api.model.Pet;
-import io.swagger.server.api.util.ResourceResponse;
-import io.swagger.server.api.util.VerticleHelper;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -37,6 +33,6 @@ public interface PetApi  {
     void updatePetWithForm(Long petId, String name, String status, User user, Handler<AsyncResult<ResourceResponse<Void>>> handler);
     
     //uploadFile
-    void uploadFile(Long petId, String additionalMetadata, File file, User user, Handler<AsyncResult<ResourceResponse<ModelApiResponse>>> handler);
+    void uploadFile(Long petId, String additionalMetadata, com.github.phiz71.vertx.swagger.router.UploadedFile file, User user, Handler<AsyncResult<ResourceResponse<ModelApiResponse>>> handler);
     
 }

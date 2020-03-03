@@ -10,11 +10,7 @@ import com.github.phiz71.vertx.swagger.router.SwaggerRouter;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.swagger.server.api.MainApiException;
-import io.swagger.server.api.MainApiHeader;
 import io.swagger.server.api.model.Order;
-import io.swagger.server.api.util.ResourceResponse;
-import io.swagger.server.api.util.VerticleHelper;
 
 public class StoreApiVerticle extends AbstractVerticle {
     private VerticleHelper verticleHelper = new VerticleHelper(this.getClass());
@@ -41,7 +37,7 @@ public class StoreApiVerticle extends AbstractVerticle {
     final Handler<Message<JsonObject>> getInventoryHandler = message -> {
         try {
             User user = SwaggerRouter.extractAuthUserFromMessage(message);
-            service.getInventory(user, verticleHelper.getAsyncResultHandler(message, GETINVENTORY_SERVICE_ID, true, new TypeReference<JsonObject>(){}));
+            service.getInventory(user, verticleHelper.getAsyncResultHandler(message, GETINVENTORY_SERVICE_ID, false, new TypeReference<JsonObject>(){}));
 
         } catch (Exception e) {
             verticleHelper.manageError(message, e, GETINVENTORY_SERVICE_ID);

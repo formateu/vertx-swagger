@@ -61,7 +61,6 @@
             }
           }
         },
-        "x-contentType" : "application/json",
         "x-accepts" : "application/json"
       }
     },
@@ -164,7 +163,6 @@
         "security" : [ {
           "petstore_auth" : [ "write:pets", "read:pets" ]
         } ],
-        "x-contentType" : "application/json",
         "x-accepts" : "application/json"
       }
     },
@@ -204,7 +202,6 @@
           "petstore_auth" : [ "write:pets", "read:pets" ]
         } ],
         "deprecated" : true,
-        "x-contentType" : "application/json",
         "x-accepts" : "application/json"
       }
     },
@@ -240,7 +237,6 @@
         "security" : [ {
           "api_key" : [ ]
         } ],
-        "x-contentType" : "application/json",
         "x-accepts" : "application/json"
       },
       "post" : {
@@ -311,7 +307,6 @@
         "security" : [ {
           "petstore_auth" : [ "write:pets", "read:pets" ]
         } ],
-        "x-contentType" : "application/json",
         "x-accepts" : "application/json"
       }
     },
@@ -381,7 +376,6 @@
         "security" : [ {
           "api_key" : [ ]
         } ],
-        "x-contentType" : "application/json",
         "x-accepts" : "application/json"
       }
     },
@@ -447,7 +441,6 @@
             "description" : "Order not found"
           }
         },
-        "x-contentType" : "application/json",
         "x-accepts" : "application/json"
       },
       "delete" : {
@@ -473,7 +466,6 @@
             "description" : "Order not found"
           }
         },
-        "x-contentType" : "application/json",
         "x-accepts" : "application/json"
       }
     },
@@ -606,7 +598,6 @@
             }
           }
         },
-        "x-contentType" : "application/json",
         "x-accepts" : "application/json"
       }
     },
@@ -623,7 +614,6 @@
             "description" : "successful operation"
           }
         },
-        "x-contentType" : "application/json",
         "x-accepts" : "application/json"
       }
     },
@@ -655,7 +645,6 @@
             "description" : "User not found"
           }
         },
-        "x-contentType" : "application/json",
         "x-accepts" : "application/json"
       },
       "put" : {
@@ -711,7 +700,6 @@
             "description" : "User not found"
           }
         },
-        "x-contentType" : "application/json",
         "x-accepts" : "application/json"
       }
     }

@@ -235,6 +235,10 @@ public class ChainingAuthTest {
         httpServer.close(completionHandler -> {
             if (completionHandler.succeeded()) {
                 FileSystem vertxFileSystem = vertx.fileSystem();
+                if (!vertxFileSystem.existsBlocking(".vertx")) {
+                	after.complete();
+                	return;
+                }
                 vertxFileSystem.deleteRecursive(".vertx", true, vertxDir -> {
                     if (vertxDir.succeeded()) {
                         after.complete();

@@ -1,6 +1,7 @@
 package io.swagger.server.api.util;
 
-import io.swagger.server.api.MainApiHeader;
+import com.github.phiz71.vertx.swagger.router.ApiHeader;
+
 import io.vertx.core.MultiMap;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
@@ -15,7 +16,7 @@ public class ResourceResponse<T> {
         this.headers = MultiMap.caseInsensitiveMultiMap();
     }
 
-    public ResourceResponse<T> addHeader(MainApiHeader header) {
+    public ResourceResponse<T> addHeader(ApiHeader header) {
         if (header.getValue() != null)
             this.headers.add(header.getName(), header.getValue());
         else

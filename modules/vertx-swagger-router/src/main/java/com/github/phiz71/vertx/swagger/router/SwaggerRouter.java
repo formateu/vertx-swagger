@@ -195,7 +195,7 @@ public class SwaggerRouter {
 						.headers()
 						.forEach(entry -> deliveryOptions.addHeader(entry.getKey(), entry.getValue()));
 
-				eventBus.<Object>send(serviceId, message, deliveryOptions,
+				eventBus.<Object>request(serviceId, message, deliveryOptions,
 						operationResponse -> responseHandler(context, operation, operationResponse));
 			} catch (Exception e) {
 				vertxLogger.error("sending Bad Request", e);
@@ -263,7 +263,6 @@ public class SwaggerRouter {
 			Object body = operationResponse.result().body();
 			if (body instanceof File) {
 				response.sendFile(((File) body).getPath());
-				return;
 			} else if (body != null) {
 				if (!response.headWritten() && !response.headers().contains(HttpHeaders.CONTENT_TYPE)) {
 					CharSequence contentType = context.getAcceptableContentType();
@@ -272,7 +271,15 @@ public class SwaggerRouter {
 					}
 					response.putHeader(HttpHeaders.CONTENT_TYPE, contentType);
 				}
-				response.end(Json.encode(body));
+				String responseString;
+				if (body instanceof String) {
+					responseString = (String) body;
+				} else if (body instanceof JsonObject) {
+					responseString = ((JsonObject) body).encode();
+				} else {
+					responseString = Json.encode(body);
+				}
+				response.end(responseString);
 			} else {
 				response.end();
 			}
