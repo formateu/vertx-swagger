@@ -231,14 +231,15 @@ public class SwaggerRouter {
 		}
 	}
 
-	public static User extractAuthUserFromMessage(Message<?> message) {
+	public static User extractAuthUserFromMessage(Message<?> message, RoutingContext context) {
 		User user = null;
 		String serializedUser = message.headers().get(SwaggerRouter.AUTH_USER_HEADER_KEY);
 		if (serializedUser != null && !serializedUser.isEmpty()) {
 			Buffer buffer = Buffer.buffer(Base64.getDecoder().decode(serializedUser));
 			UserHolder userHolder = new UserHolder();
 			userHolder.readFromBuffer(0, buffer);
-			user = userHolder.user;
+			userHolder.refresh(context);
+			user = context.user();
 			if (user != null) {
 				String authProviderName = message.headers().get(SwaggerRouter.AUTH_PROVIDER_NAME_HEADER_KEY);
 				if (authProviderName != null) {

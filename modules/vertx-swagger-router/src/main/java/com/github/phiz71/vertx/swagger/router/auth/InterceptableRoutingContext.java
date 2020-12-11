@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
@@ -117,6 +118,16 @@ public class InterceptableRoutingContext implements RoutingContext {
 	}
 
 	@Override
+	public int addEndHandler(Handler<AsyncResult<Void>> handler) {
+		return this.inner.addEndHandler(handler);
+	}
+
+	@Override
+	public boolean removeEndHandler(int i) {
+		return this.inner.removeEndHandler(i);
+	}
+
+	@Override
 	public void setSession(Session session) {
 		this.inner.setSession(session);
 	}
@@ -124,6 +135,11 @@ public class InterceptableRoutingContext implements RoutingContext {
 	@Override
 	public Session session() {
 		return this.inner.session();
+	}
+
+	@Override
+	public boolean isSessionAccessed() {
+		return this.inner.isSessionAccessed();
 	}
 
 	@Override
