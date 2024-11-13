@@ -8,6 +8,8 @@ import io.vertx.core.eventbus.Message;
 {{#hasAuthMethods}}
 import io.vertx.ext.auth.User;
 import com.github.phiz71.vertx.swagger.router.SwaggerRouter;
+import io.vertx.ext.web.impl.RoutingContextImpl;
+import io.vertx.ext.web.impl.RouteImpl;
 {{/hasAuthMethods}}
 
 {{#imports}}import {{import}};
@@ -27,7 +29,214 @@ public class {{classname}}Verticle extends AbstractVerticle {
     final Handler<Message<io.vertx.core.json.JsonObject>> {{#vendorExtensions}}{{x-serviceId}}{{/vendorExtensions}}Handler = message -> {
         try {
     {{#hasAuthMethods}}
-            User user = SwaggerRouter.extractAuthUserFromMessage(message);
+            HttpServerRequest stubReqest = new HttpServerRequest() {
+                @Override
+                public HttpServerRequest exceptionHandler(Handler<Throwable> handler) {
+                    return null;
+                }
+
+                @Override
+                public HttpServerRequest handler(Handler<Buffer> handler) {
+                    return null;
+                }
+
+                @Override
+                public HttpServerRequest pause() {
+                    return null;
+                }
+
+                @Override
+                public HttpServerRequest resume() {
+                    return null;
+                }
+
+                @Override
+                public HttpServerRequest fetch(long l) {
+                    return null;
+                }
+
+                @Override
+                public HttpServerRequest endHandler(Handler<Void> handler) {
+                    return null;
+                }
+
+                @Override
+                public HttpVersion version() {
+                    return null;
+                }
+
+                @Override
+                public HttpMethod method() {
+                    return null;
+                }
+
+                @Override
+                public String rawMethod() {
+                    return "";
+                }
+
+                @Override
+                public boolean isSSL() {
+                    return false;
+                }
+
+                @Override
+                public @Nullable String scheme() {
+                    return "";
+                }
+
+                @Override
+                public String uri() {
+                    return "";
+                }
+
+                @Override
+                public @Nullable String path() {
+                    return "/stubPath";
+                }
+
+                @Override
+                public @Nullable String query() {
+                    return "";
+                }
+
+                @Override
+                public @Nullable String host() {
+                    return "";
+                }
+
+                @Override
+                public long bytesRead() {
+                    return 0;
+                }
+
+                @Override
+                public HttpServerResponse response() {
+                    return null;
+                }
+
+                @Override
+                public MultiMap headers() {
+                    return null;
+                }
+
+                @Override
+                public @Nullable String getHeader(String s) {
+                    return "";
+                }
+
+                @Override
+                public String getHeader(CharSequence charSequence) {
+                    return "";
+                }
+
+                @Override
+                public MultiMap params() {
+                    return null;
+                }
+
+                @Override
+                public @Nullable String getParam(String s) {
+                    return "";
+                }
+
+                @Override
+                public SocketAddress remoteAddress() {
+                    return null;
+                }
+
+                @Override
+                public SocketAddress localAddress() {
+                    return null;
+                }
+
+                @Override
+                public SSLSession sslSession() {
+                    return null;
+                }
+
+                @Override
+                public X509Certificate[] peerCertificateChain() throws SSLPeerUnverifiedException {
+                    return new X509Certificate[0];
+                }
+
+                @Override
+                public String absoluteURI() {
+                    return "";
+                }
+
+                @Override
+                public NetSocket netSocket() {
+                    return null;
+                }
+
+                @Override
+                public HttpServerRequest setExpectMultipart(boolean b) {
+                    return null;
+                }
+
+                @Override
+                public boolean isExpectMultipart() {
+                    return false;
+                }
+
+                @Override
+                public HttpServerRequest uploadHandler(@Nullable Handler<HttpServerFileUpload> handler) {
+                    return null;
+                }
+
+                @Override
+                public MultiMap formAttributes() {
+                    return null;
+                }
+
+                @Override
+                public @Nullable String getFormAttribute(String s) {
+                    return "";
+                }
+
+                @Override
+                public ServerWebSocket upgrade() {
+                    return null;
+                }
+
+                @Override
+                public boolean isEnded() {
+                    return false;
+                }
+
+                @Override
+                public HttpServerRequest customFrameHandler(Handler<HttpFrame> handler) {
+                    return null;
+                }
+
+                @Override
+                public HttpConnection connection() {
+                    return null;
+                }
+
+                @Override
+                public HttpServerRequest streamPriorityHandler(Handler<StreamPriority> handler) {
+                    return null;
+                }
+
+                @Override
+                public @Nullable Cookie getCookie(String s) {
+                    return null;
+                }
+
+                @Override
+                public int cookieCount() {
+                    return 0;
+                }
+
+                @Override
+                public Map<String, Cookie> cookieMap() {
+                    return Map.of();
+                }
+            };
+            RoutingContext stubContext = new RoutingContextImpl(null, null, stubRequest, new Set<RouteImpl>());
+            User user = SwaggerRouter.extractAuthUserFromMessage(message, stubContext);
     {{/hasAuthMethods}}
     {{#hasParams}}
         {{#allParams}}
