@@ -8,8 +8,31 @@ import io.vertx.core.eventbus.Message;
 {{#hasAuthMethods}}
 import io.vertx.ext.auth.User;
 import com.github.phiz71.vertx.swagger.router.SwaggerRouter;
-import io.vertx.ext.web.impl.RoutingContextImpl;
+import io.vertx.codegen.annotations.Nullable;
+import io.vertx.core.Handler;
+import io.vertx.core.MultiMap;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.Cookie;
+import io.vertx.core.http.HttpFrame;
+import io.vertx.core.http.HttpServerFileUpload;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.http.ServerWebSocket;
+import io.vertx.core.http.StreamPriority;
+import io.vertx.core.http.HttpConnection;
+import io.vertx.core.http.HttpVersion;
+import io.vertx.core.http.HttpMethod;
+import io.vertx.core.net.NetSocket;
+import io.vertx.core.net.SocketAddress;
+import io.vertx.ext.auth.User;
+import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.impl.RouteImpl;
+import io.vertx.ext.web.impl.RoutingContextImpl;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLSession;
+import javax.security.cert.X509Certificate;
+import java.util.Map;
+import java.util.Set;
 {{/hasAuthMethods}}
 
 {{#imports}}import {{import}};
@@ -29,7 +52,7 @@ public class {{classname}}Verticle extends AbstractVerticle {
     final Handler<Message<io.vertx.core.json.JsonObject>> {{#vendorExtensions}}{{x-serviceId}}{{/vendorExtensions}}Handler = message -> {
         try {
     {{#hasAuthMethods}}
-            HttpServerRequest stubReqest = new HttpServerRequest() {
+            HttpServerRequest stubRequest = new HttpServerRequest() {
                 @Override
                 public HttpServerRequest exceptionHandler(Handler<Throwable> handler) {
                     return null;
@@ -235,7 +258,7 @@ public class {{classname}}Verticle extends AbstractVerticle {
                     return Map.of();
                 }
             };
-            RoutingContext stubContext = new RoutingContextImpl(null, null, stubRequest, new Set<RouteImpl>());
+            RoutingContext stubContext = new RoutingContextImpl(null, null, stubRequest, new HashSet<>());
             User user = SwaggerRouter.extractAuthUserFromMessage(message, stubContext);
     {{/hasAuthMethods}}
     {{#hasParams}}
